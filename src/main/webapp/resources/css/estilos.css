@@ -1,0 +1,170 @@
+/* =====================================================================
+   Sadu Pedidos — estilos globales "Sol de Sadu"  (dueño: Dev 1)
+   Usa SIEMPRE estas variables y clases. Si necesitas estilos propios,
+   créalos en tu archivo (menu.css, pedidos.css, gerencia.css).
+   ===================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --sadu-azul: #5e6cb3;
+  --sadu-azul-oscuro: #46528f;
+  --sadu-sol: #f5c74d;
+  --sadu-sol-oscuro: #e3b32f;
+  --sadu-crema: #faf6f0;
+  --sadu-arena: #f2ece1;
+  --sadu-borde: #e3dacb;
+  --sadu-blanco: #ffffff;
+  --sadu-texto: #2b2d42;
+  --sadu-texto-suave: #5a5d70;
+  --sadu-exito: #1f6b45;
+  --sadu-peligro: #9a3a26;
+  --radio: 18px;
+  --sombra: 0 2px 0 #ede6da;
+  --fuente-titulo: 'Fredoka', 'Nunito', sans-serif;
+  --fuente-texto: 'Nunito', 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--fuente-texto);
+  color: var(--sadu-texto);
+  background: var(--sadu-crema);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+h1, h2, h3 { font-family: var(--fuente-titulo); font-weight: 600; line-height: 1.15; margin: 0; }
+a { color: var(--sadu-azul-oscuro); }
+img { max-width: 100%; }
+.contenedor { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.etiqueta { font-weight: 800; font-size: 13px; letter-spacing: .22em; color: var(--sadu-azul-oscuro); text-transform: uppercase; }
+.texto-suave { color: var(--sadu-texto-suave); }
+
+/* ---------- Encabezado del cliente ---------- */
+.encabezado { background: var(--sadu-blanco); border-bottom: 3px solid var(--sadu-sol); }
+.encabezado .contenedor { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+.encabezado .logo img { height: 58px; display: block; }
+.nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.nav a.nav-link { padding: 10px 14px; font-weight: 800; text-decoration: none; color: var(--sadu-azul-oscuro); border-radius: 999px; }
+.nav a.nav-link:hover { background: var(--sadu-arena); }
+.nav a.nav-link.activo { color: var(--sadu-texto); box-shadow: inset 0 -3px 0 var(--sadu-sol); border-radius: 0; }
+.nav form { margin: 0; }
+.saludo { font-weight: 700; color: var(--sadu-texto-suave); padding: 0 8px; }
+
+/* ---------- Botones ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 22px; border: 2px solid transparent; border-radius: 999px;
+  font-family: var(--fuente-texto); font-weight: 800; font-size: 15px; text-decoration: none;
+  cursor: pointer; transition: background .15s, transform .1s;
+}
+.btn:active { transform: translateY(1px); }
+.btn-sol { background: var(--sadu-sol); color: var(--sadu-texto); }          /* acción principal: solo una por pantalla */
+.btn-sol:hover { background: var(--sadu-sol-oscuro); }
+.btn-azul { background: var(--sadu-azul); color: var(--sadu-blanco); }
+.btn-azul:hover { background: var(--sadu-azul-oscuro); }
+.btn-borde { background: transparent; color: var(--sadu-azul-oscuro); border-color: var(--sadu-azul); }
+.btn-borde:hover { background: var(--sadu-arena); }
+.btn-peligro { background: #fbe7e2; color: var(--sadu-peligro); border-radius: 12px; }
+.btn-peligro:hover { background: #f6d2c9; }
+.btn-chico { min-height: 36px; padding: 0 14px; font-size: 14px; }
+.btn-grande { min-height: 52px; padding: 0 28px; font-size: 17px; }
+.btn-bloque { width: 100%; }
+
+/* ---------- Tarjetas y rejillas ---------- */
+.tarjeta { background: var(--sadu-blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 24px; }
+.grid-tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+.platillo { background: var(--sadu-blanco); border-radius: var(--radio); box-shadow: var(--sombra); overflow: hidden; display: flex; flex-direction: column; }
+.platillo-foto { height: 160px; background-color: #fcefc7; background-size: cover; background-position: center; }
+.platillo:nth-child(even) .platillo-foto { background-color: #e3e6f6; }
+.platillo-cuerpo { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.platillo-cuerpo h3 { font-size: 20px; }
+.precio { font-weight: 800; font-size: 19px; }
+
+/* ---------- Formularios ---------- */
+.formulario { display: flex; flex-direction: column; gap: 16px; }
+.campo { display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 14px; color: var(--sadu-texto-suave); }
+.campo input, .campo select, .campo textarea {
+  min-height: 46px; padding: 10px 14px; border: 2px solid var(--sadu-borde); border-radius: 14px;
+  background: var(--sadu-blanco); font-family: var(--fuente-texto); font-size: 16px; color: var(--sadu-texto);
+}
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--sadu-azul); box-shadow: 0 0 0 3px rgba(94,108,179,.18); }
+.campo small { font-weight: 600; }
+.casilla { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.casilla input { width: 20px; height: 20px; accent-color: var(--sadu-azul); }
+.fila-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+/* ---------- Mensajes ---------- */
+.alerta { padding: 12px 16px; border-radius: 14px; font-weight: 700; }
+.alerta ul { margin: 6px 0 0; padding-left: 20px; font-weight: 600; }
+.alerta-exito { background: #ddf1e6; color: var(--sadu-exito); }
+.alerta-error { background: #fbe7e2; color: var(--sadu-peligro); }
+.alerta-info { background: #e3e6f6; color: #3b4689; }
+
+/* ---------- Estados del pedido: class="badge badge-${pedido.estado}" ---------- */
+.badge { display: inline-block; padding: 5px 12px; border-radius: 999px; font-weight: 800; font-size: 13px; white-space: nowrap; }
+.badge-RECIBIDO { background: #ecedf2; color: #4a4d60; }
+.badge-EN_PREPARACION { background: #fcefc7; color: #7a5a00; }
+.badge-LISTO { background: #e3e6f6; color: #3b4689; }
+.badge-EN_CAMINO { background: #e6edf7; color: #2c5282; }
+.badge-ENTREGADO { background: #ddf1e6; color: var(--sadu-exito); }
+.badge-CANCELADO { background: #fbe7e2; color: var(--sadu-peligro); }
+
+/* ---------- Tablas ---------- */
+.tabla-caja { overflow-x: auto; background: var(--sadu-blanco); border-radius: var(--radio); box-shadow: var(--sombra); }
+.tabla { width: 100%; border-collapse: collapse; }
+.tabla th, .tabla td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--sadu-arena); font-size: 15px; }
+.tabla th { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--sadu-texto-suave); background: #fbf8f2; }
+.tabla tbody tr:hover { background: #fdfaf4; }
+
+/* ---------- Contenido y portada ---------- */
+.pagina { flex: 1; padding: 40px 0 64px; }
+.pagina > .contenedor { display: flex; flex-direction: column; gap: 24px; }
+.hero { display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding: 16px 0 24px; }
+.hero-texto { flex: 1 1 420px; display: flex; flex-direction: column; gap: 18px; }
+.hero-texto h1 { font-size: clamp(36px, 5vw, 56px); }
+.hero-texto p { font-size: 19px; color: var(--sadu-texto-suave); margin: 0; max-width: 520px; }
+.hero-botones { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-sol { flex: 1 1 320px; display: flex; justify-content: center; }
+.hero-sol .circulo { width: min(100%, 400px); aspect-ratio: 1; border-radius: 50%; background: var(--sadu-blanco); box-shadow: 0 0 0 18px #fcefc7; display: flex; align-items: center; justify-content: center; }
+.hero-sol img { width: 70%; }
+.seccion-titulo { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; }
+.seccion-titulo h2 { font-size: 30px; color: var(--sadu-azul-oscuro); }
+
+/* ---------- Pantallas de acceso ---------- */
+.acceso { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
+.acceso .tarjeta { width: 100%; max-width: 460px; padding: 32px; display: flex; flex-direction: column; gap: 18px; }
+.acceso .tarjeta.ancha { max-width: 620px; }
+.acceso-cabecera { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.acceso-cabecera img { height: 90px; }
+.acceso-cabecera h1 { font-size: 30px; }
+
+/* ---------- Pie ---------- */
+.pie { background: var(--sadu-azul-oscuro); color: var(--sadu-blanco); }
+.pie .contenedor { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding-top: 20px; padding-bottom: 20px; font-size: 14px; }
+.pie strong { letter-spacing: .2em; }
+
+/* ---------- Panel interno (administrador y cocina) ---------- */
+.layout-admin { flex: 1; display: flex; flex-wrap: wrap; min-height: 100vh; }
+.barra-lateral { flex: 1 1 230px; max-width: 100%; background: var(--sadu-azul-oscuro); color: var(--sadu-blanco); padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; }
+.barra-lateral .marca { font-family: var(--fuente-titulo); font-weight: 600; font-size: 30px; letter-spacing: .04em; padding: 0 12px; }
+.barra-lateral .marca-sub { font-weight: 800; font-size: 12px; letter-spacing: .22em; opacity: .85; padding: 0 12px 18px; }
+.barra-lateral a { padding: 11px 14px; border-radius: 12px; color: var(--sadu-blanco); text-decoration: none; font-weight: 800; }
+.barra-lateral a:hover { background: rgba(255,255,255,.12); }
+.barra-lateral a.activo { background: var(--sadu-sol); color: var(--sadu-texto); }
+.barra-lateral .usuario { margin-top: auto; padding: 16px 12px 0; border-top: 1px solid rgba(255,255,255,.2); display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.barra-lateral .usuario button { align-self: flex-start; background: transparent; color: var(--sadu-blanco); border: 2px solid rgba(255,255,255,.6); }
+.contenido-admin { flex: 999 1 560px; min-width: 0; padding: 28px; display: flex; flex-direction: column; gap: 22px; }
+.contenido-admin h1 { font-size: 34px; }
+
+/* ---------- Celular ---------- */
+@media (max-width: 640px) {
+  .contenedor { padding: 0 16px; }
+  .encabezado .logo img { height: 48px; }
+  .fila-2 { grid-template-columns: 1fr; }
+  .hero-sol { display: none; }
+  .acceso .tarjeta { padding: 24px; }
+  .contenido-admin { padding: 20px 16px; }
+}

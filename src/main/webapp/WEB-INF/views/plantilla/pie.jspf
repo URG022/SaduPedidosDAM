@@ -1,0 +1,9 @@
+<%@ page pageEncoding="UTF-8" %>
+<footer class="pie">
+    <div class="contenedor">
+        <strong>SADU RESTAURANT</strong>
+        <span>Equipo 8 · Desarrollo de Aplicaciones Multiplataforma</span>
+    </div>
+</footer>
+</body>
+</html>

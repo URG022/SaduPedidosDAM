@@ -1,0 +1,45 @@
+<%-- Plantilla del CLIENTE (dueño: Dev 1). Uso en cada vista:
+       <c:set var="titulo" value="Menú"/>
+       <c:set var="seccion" value="menu"/>          (inicio | menu | pedidos | carrito)
+       <%@ include file="/WEB-INF/views/plantilla/encabezado.jspf" %>
+       ... contenido ...
+       <%@ include file="/WEB-INF/views/plantilla/pie.jspf" %>
+--%>
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<c:set var="usuario" value="${sessionScope.usuarioAutenticado}"/>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><c:out value="${titulo}"/> · Sadu Restaurant</title>
+    <link rel="icon" href="${ctx}/resources/img/logo-sadu.png?v=3">
+    <link rel="stylesheet" href="${ctx}/resources/css/estilos.css?v=3">
+</head>
+<body>
+<header class="encabezado">
+    <div class="contenedor">
+        <a class="logo" href="${ctx}/inicio"><img src="${ctx}/resources/img/logo-sadu.png?v=3" alt="Sadu Restaurant, ir al inicio"></a>
+        <nav class="nav" aria-label="Principal">
+            <a class="nav-link ${seccion == 'menu' ? 'activo' : ''}" href="${ctx}/menu">Menú</a>
+            <c:choose>
+                <c:when test="${usuario == null}">
+                    <a class="nav-link" href="${ctx}/login">Iniciar sesión</a>
+                    <a class="btn btn-sol btn-chico" href="${ctx}/registro">Crear cuenta</a>
+                </c:when>
+                <c:when test="${usuario.cliente}">
+                    <a class="nav-link ${seccion == 'pedidos' ? 'activo' : ''}" href="${ctx}/cliente/pedidos">Mis pedidos</a>
+                    <span class="saludo">Hola, <c:out value="${usuario.primerNombre}"/></span>
+                    <a class="btn btn-sol btn-chico" href="${ctx}/cliente/carrito">Carrito</a>
+                    <form method="post" action="${ctx}/salir"><button class="btn btn-borde btn-chico" type="submit">Salir</button></form>
+                </c:when>
+                <c:otherwise>
+                    <a class="btn btn-azul btn-chico" href="${ctx}/panel">Ir al panel</a>
+                    <form method="post" action="${ctx}/salir"><button class="btn btn-borde btn-chico" type="submit">Salir</button></form>
+                </c:otherwise>
+            </c:choose>
+        </nav>
+    </div>
+</header>

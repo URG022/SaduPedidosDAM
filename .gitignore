@@ -1,0 +1,21 @@
+# Maven / build
+target/
+*.war
+*.class
+
+# IDEs
+nbproject/private/
+nb-configuration.xml
+.idea/
+*.iml
+.vscode/
+
+# Configuracion sensible (Guia 05): nunca subir credenciales reales
+db.properties
+!src/main/resources/db.properties.example
+*.env
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
