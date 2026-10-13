@@ -9,7 +9,7 @@ CREATE DATABASE IF NOT EXISTS sadu_db
 -- Usuario con permisos limitados: la aplicacion NUNCA se conecta con root.
 -- Cambia la clave en tu maquina y ponla solo en ~/.sadu/db.properties
 CREATE USER IF NOT EXISTS 'sadu_app'@'localhost'
-  IDENTIFIED BY 'Cambiar_Esta_Clave_2026!';
+  IDENTIFIED BY 'SaduDam2026';
 
 GRANT SELECT, INSERT, UPDATE, DELETE
   ON sadu_db.*

@@ -13,7 +13,7 @@ import sv.edu.itca.sadu.dao.UsuarioDAOImpl;
 import sv.edu.itca.sadu.model.Usuario;
 import sv.edu.itca.sadu.service.ServicioRegistro;
 
-/** P2 Crear cuenta de cliente. */
+/** Crear cuenta de cliente. */
 @WebServlet(name = "RegistroServlet", urlPatterns = {"/registro"})
 public class RegistroServlet extends HttpServlet {
 

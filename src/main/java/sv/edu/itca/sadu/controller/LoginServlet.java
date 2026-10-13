@@ -13,7 +13,7 @@ import sv.edu.itca.sadu.dao.UsuarioDAOImpl;
 import sv.edu.itca.sadu.model.Usuario;
 import sv.edu.itca.sadu.service.ServicioAutenticacion;
 
-/** P2 Iniciar sesion (GET muestra el formulario, POST valida). */
+/**Iniciar sesion (GET muestra el formulario, POST valida). */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
 

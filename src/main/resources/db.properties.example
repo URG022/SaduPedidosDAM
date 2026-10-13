@@ -1,6 +1,0 @@
-# 1. Copia este archivo en la MISMA carpeta con el nombre: db.properties
-# 2. Cambia la clave por la de tu MySQL.
-# db.properties esta en .gitignore: NUNCA se sube a GitHub.
-db.url=jdbc:mysql://127.0.0.1:3306/sadu_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/El_Salvador
-db.user=root
-db.password=CAMBIAR_EN_LOCAL

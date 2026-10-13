@@ -8,9 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Guia 01: confirma que Tomcat 9 publica la aplicacion y ejecuta Servlets.
- */
+
 @WebServlet(name = "DiagnosticoServlet", urlPatterns = {"/diagnostico"})
 public class DiagnosticoServlet extends HttpServlet {
 
