@@ -19,7 +19,7 @@
         <h2 style="font-size: 22px">Tablero de cocina</h2><span class="texto-suave">Pedidos por estado y cambio de estado.</span>
     </a>
     <c:if test="${usuario.administrador}">
-        <a class="tarjeta" href="${ctx}/admin/productos" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 6px">
+        <a class="tarjeta" href="${ctx}/admin/admin_productos" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 6px">
             <h2 style="font-size: 22px">Menú</h2><span class="texto-suave">Platillos y categorías.</span>
         </a>
         <a class="tarjeta" href="${ctx}/admin/clientes" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 6px">

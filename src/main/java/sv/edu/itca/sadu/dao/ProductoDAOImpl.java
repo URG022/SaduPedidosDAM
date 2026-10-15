@@ -71,7 +71,7 @@ public class ProductoDAOImpl implements ProductoDAO {
     @Override
     public List<Producto> obtenerTodos() throws DAOException {
         List<Producto> lista = new ArrayList<>();
-        String sql = "SELECT * FROM productos ORDER BY id_producto DESC";
+        String sql = "SELECT * FROM productos";
         try (Connection conn = ConexionBD.obtenerConexion();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {

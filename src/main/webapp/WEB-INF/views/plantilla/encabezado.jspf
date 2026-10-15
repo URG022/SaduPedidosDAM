@@ -23,7 +23,7 @@
     <div class="contenedor">
         <a class="logo" href="${ctx}/inicio"><img src="${ctx}/resources/img/logo-sadu.png?v=3" alt="Sadu Restaurant, ir al inicio"></a>
         <nav class="nav" aria-label="Principal">
-            <a class="nav-link ${seccion == 'menu' ? 'activo' : ''}" href="${ctx}/cliente/productos"/menu">Menú</a>
+            <a class="nav-link ${seccion == 'menu' ? 'activo' : ''}" href="${ctx}/cliente/productos">Menú</a>
             <c:choose>
                 <c:when test="${usuario == null}">
                     <a class="nav-link" href="${ctx}/login">Iniciar sesión</a>

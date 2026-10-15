@@ -36,7 +36,7 @@ public class ProductoServlet extends HttpServlet {
             if (accion == null || accion.isEmpty() || accion.equals("listar")) {
                 List<Producto> lista = servicioProducto.obtenerTodosLosProductos();
                 request.setAttribute("productos", lista);
-                request.getRequestDispatcher("/WEB-INF/views/menu/productos.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/cliente/productos.jsp").forward(request, response);
             } else if (accion.equals("eliminar")) {
                 Long id = Long.parseLong(request.getParameter("id"));
                 servicioProducto.eliminarProducto(id);
@@ -44,7 +44,7 @@ public class ProductoServlet extends HttpServlet {
             }
         } catch (Exception e) {
             request.setAttribute("error", "Ocurrió un error: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/views/menu/productos.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cliente/productos.jsp").forward(request, response);
         }
     }
 
@@ -86,7 +86,7 @@ public class ProductoServlet extends HttpServlet {
             
         } catch (Exception e) {
             request.setAttribute("error", e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/views/menu/productos.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/cliente/productos.jsp").forward(request, response);
         }
     }
 }

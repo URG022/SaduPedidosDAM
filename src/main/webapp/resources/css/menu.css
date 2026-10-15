@@ -1,0 +1,10 @@
+/* ---------- Ventanas Modales ---------- */
+.modal-fondo {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(43, 45, 66, 0.6); /* --sadu-texto con opacidad */
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; backdrop-filter: blur(2px);
+}
+.modal-fondo.activo { display: flex; }
+.modal-caja { max-width: 400px; width: 90%; text-align: center; }
+.modal-caja h3 { color: var(--sadu-peligro); margin-bottom: 12px; }
