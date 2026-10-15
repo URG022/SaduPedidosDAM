@@ -18,4 +18,6 @@ public interface ProductoDAO {
     void eliminar(Long idProducto) throws DAOException;
     Producto obtenerPorId(Long idProducto) throws DAOException;
     List<Producto> obtenerTodos() throws DAOException;
+    List<Producto> obtenerProductosPaginados(int limite, int offset);
+    int contarTotalProductos();
 }

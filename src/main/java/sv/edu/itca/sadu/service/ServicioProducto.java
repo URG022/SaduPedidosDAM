@@ -45,6 +45,14 @@ public class ServicioProducto {
     public List<Producto> obtenerTodosLosProductos() throws DAOException {
         return productoDAO.obtenerTodos();
     }
+    
+    public List<Producto> obtenerProductosPaginados(int limite, int offset) {
+        return productoDAO.obtenerProductosPaginados(limite, offset);
+    }
+
+    public int contarTotalProductos() {
+        return productoDAO.contarTotalProductos();
+    }
 
     // Reglas de negocio y validaciones antes de tocar la base de datos
     private void validarProducto(Producto producto) throws Exception {

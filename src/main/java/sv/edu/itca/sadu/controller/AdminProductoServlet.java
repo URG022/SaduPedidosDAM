@@ -25,9 +25,11 @@ public class AdminProductoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String accion = request.getParameter("accion");
-        if (accion == null) accion = "listar";
+        if (accion == null) {
+            accion = "listar";
+        }
 
         try {
             switch (accion) {
@@ -49,9 +51,31 @@ public class AdminProductoServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/admin/productos");
                     break;
                 default:
-                    // Lista todos los productos en la tabla del dashboard
-                    List<Producto> lista = servicioProducto.obtenerTodosLosProductos();
+                    // Configuración de la paginación
+                    int limite = 15;
+                    int paginaActual = 1;
+
+                    // Si la URL trae el parámetro "pagina", lo leemos
+                    String paginaParam = request.getParameter("pagina");
+                    if (paginaParam != null && !paginaParam.isEmpty()) {
+                        paginaActual = Integer.parseInt(paginaParam);
+                    }
+
+                    // Calculamos desde qué registro empezar (ej. Pag 1 = 0, Pag 2 = 15)
+                    int offset = (paginaActual - 1) * limite;
+
+                    // Obtenemos los datos de la base de datos
+                    List<Producto> lista = servicioProducto.obtenerProductosPaginados(limite, offset);
+                    int totalProductos = servicioProducto.contarTotalProductos();
+
+                    // Calculamos cuántas páginas habrá en total
+                    int totalPaginas = (int) Math.ceil((double) totalProductos / limite);
+
+                    // Enviamos todo a la vista
                     request.setAttribute("productos", lista);
+                    request.setAttribute("paginaActual", paginaActual);
+                    request.setAttribute("totalPaginas", totalPaginas);
+
                     request.getRequestDispatcher("/WEB-INF/views/admin/productos.jsp").forward(request, response);
                     break;
             }
@@ -64,11 +88,11 @@ public class AdminProductoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8");
-        
+
         String idParam = request.getParameter("idProducto");
-        
+
         try {
             Producto p = new Producto();
             p.setNombre(request.getParameter("nombre"));
@@ -85,10 +109,10 @@ public class AdminProductoServlet extends HttpServlet {
                 p.setIdProducto(Long.parseLong(idParam));
                 servicioProducto.actualizarProducto(p); // Edición
             }
-            
+
             // Redirige al listado principal del admin tras guardar
             response.sendRedirect(request.getContextPath() + "/admin/productos");
-            
+
         } catch (Exception e) {
             request.setAttribute("error", e.getMessage());
             // Si hay error, regresamos los datos al formulario para no perder lo escrito

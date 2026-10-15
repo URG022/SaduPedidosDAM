@@ -86,6 +86,30 @@
                 </tbody>
             </table>
         </div>
+        <!-- Paginación -->
+        <c:if test="${totalPaginas > 1}">
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 24px;">
+
+                <!-- Botón Anterior -->
+                <c:if test="${paginaActual > 1}">
+                    <a href="${ctx}/admin/productos?pagina=${paginaActual - 1}" class="btn btn-borde btn-chico">Anterior</a>
+                </c:if>
+
+                <!-- Números de Página -->
+                <c:forEach begin="1" end="${totalPaginas}" var="i">
+                    <a href="${ctx}/admin/productos?pagina=${i}" 
+                       class="btn btn-chico ${paginaActual == i ? 'btn-azul' : 'btn-borde'}">
+                        ${i}
+                    </a>
+                </c:forEach>
+
+                <!-- Botón Siguiente -->
+                <c:if test="${paginaActual < totalPaginas}">
+                    <a href="${ctx}/admin/productos?pagina=${paginaActual + 1}" class="btn btn-borde btn-chico">Siguiente</a>
+                </c:if>
+
+            </div>
+        </c:if>
 
     </main>
 </div>
