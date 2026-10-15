@@ -1,6 +1,7 @@
 package sv.edu.itca.sadu.model;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 /**
  * Platillo del menu (tabla productos).
@@ -11,13 +12,14 @@ public class Producto {
 
     private long idProducto;
     private long idCategoria;
-    private String categoria;     // nombre de la categoria (viene del JOIN)
+    private String categoria;   
     private String nombre;
     private String descripcion;
     private BigDecimal precio;
     private String imagenUrl;
     private boolean disponible;
     private boolean destacado;
+    private Timestamp fechaCreacion;
 
     public long getIdProducto() { return idProducto; }
     public void setIdProducto(long idProducto) { this.idProducto = idProducto; }
@@ -45,4 +47,14 @@ public class Producto {
 
     public boolean isDestacado() { return destacado; }
     public void setDestacado(boolean destacado) { this.destacado = destacado; }
+
+    public Timestamp getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(Timestamp fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+    
+    
 }

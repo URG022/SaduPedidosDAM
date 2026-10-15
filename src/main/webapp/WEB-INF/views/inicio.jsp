@@ -18,7 +18,7 @@
                 <p>Arma tu pedido, elige si lo comes aquí, lo llevas o te lo enviamos, y sigue cada paso desde la cocina hasta tu mesa.</p>
                 <div class="hero-botones">
                     <a class="btn btn-sol btn-grande" href="${ctx}/menu">Ordenar ahora</a>
-                    <a class="btn btn-azul btn-grande" href="${ctx}/menu">Ver menú</a>
+                    <a class="btn btn-azul btn-grande" href="${ctx}/cliente/productos">Ver menú</a>
                 </div>
             </div>
             <div class="hero-sol" aria-hidden="true">
@@ -29,7 +29,7 @@
         <section style="display: flex; flex-direction: column; gap: 20px">
             <div class="seccion-titulo">
                 <h2>Destacados de la casa</h2>
-                <a href="${ctx}/menu"><strong>Ver todo el menú</strong></a>
+                <a href="${ctx}/cliente/productos"><strong>Ver todo el menú</strong></a>
             </div>
 
             <c:if test="${avisoBD}">
