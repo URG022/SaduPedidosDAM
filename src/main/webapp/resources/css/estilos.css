@@ -159,6 +159,27 @@ img { max-width: 100%; }
 .contenido-admin { flex: 999 1 560px; min-width: 0; padding: 28px; display: flex; flex-direction: column; gap: 22px; }
 .contenido-admin h1 { font-size: 34px; }
 
+
+/* ---------- Ventanas Modales ---------- */
+.modal-fondo {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(43, 45, 66, 0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; backdrop-filter: blur(2px);
+}
+.modal-fondo.activo { display: flex; }
+.modal-caja { max-width: 400px; width: 90%; text-align: center; }
+.modal-caja h3 { color: var(--sadu-peligro); margin-bottom: 12px; }
+
+.btn-verde-suave {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+.btn-verde-suave:hover {
+    background-color: #c8e6c9;
+}
+
 /* ---------- Celular ---------- */
 @media (max-width: 640px) {
   .contenedor { padding: 0 16px; }
