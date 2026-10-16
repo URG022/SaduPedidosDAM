@@ -3,11 +3,6 @@ package sv.edu.itca.sadu.model;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-/**
- * Platillo del menu (tabla productos).
- * Dev 1 lo usa para los destacados del Inicio; Dev 2 es el dueno del modulo
- * y puede agregar lo que necesite para el menu y el mantenimiento.
- */
 public class Producto {
 
     private long idProducto;

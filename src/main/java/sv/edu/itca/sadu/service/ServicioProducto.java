@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package sv.edu.itca.sadu.service;
 
 import sv.edu.itca.sadu.dao.DAOException;
@@ -12,12 +7,9 @@ import sv.edu.itca.sadu.model.Producto;
 
 import java.math.BigDecimal;
 import java.util.List;
-/**
- *
- * @author Sarai Villalta
- */
+
 public class ServicioProducto {
-    
+
     private ProductoDAO productoDAO;
 
     public ServicioProducto() {
@@ -45,7 +37,7 @@ public class ServicioProducto {
     public List<Producto> obtenerTodosLosProductos() throws DAOException {
         return productoDAO.obtenerTodos();
     }
-    
+
     public List<Producto> obtenerProductosPaginados(int limite, int offset) {
         return productoDAO.obtenerProductosPaginados(limite, offset);
     }
@@ -65,5 +57,9 @@ public class ServicioProducto {
         if (producto.getPrecio() == null || producto.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
             throw new Exception("El precio del producto debe ser mayor a cero.");
         }
+    }
+
+    public boolean activarProducto(Long idProducto) {
+        return productoDAO.activarProducto(idProducto);
     }
 }

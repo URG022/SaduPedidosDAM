@@ -1,10 +1,37 @@
-/* ---------- Ventanas Modales ---------- */
-.modal-fondo {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(43, 45, 66, 0.6); /* --sadu-texto con opacidad */
-    display: none; align-items: center; justify-content: center;
-    z-index: 1000; backdrop-filter: blur(2px);
-}
-.modal-fondo.activo { display: flex; }
-.modal-caja { max-width: 400px; width: 90%; text-align: center; }
-.modal-caja h3 { color: var(--sadu-peligro); margin-bottom: 12px; }
+/* ---------- MENÚ PARA CLIENTES ---------- */
+.menu-cabecera {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+    .menu-titulo {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .menu-buscador {
+        width: 100%;
+        max-width: 320px;
+    }
+    .menu-filtros {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+    .platillo-foto {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: var(--sadu-texto-suave);
+    }
+    .platillo-pie {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }

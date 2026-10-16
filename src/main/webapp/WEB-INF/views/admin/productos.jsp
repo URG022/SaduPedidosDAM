@@ -3,7 +3,6 @@
 <c:set var="titulo" value="Administración de Menú"/>
 <c:set var="seccion" value="productos"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado-admin.jspf" %>
-<link rel="stylesheet" href="${ctx}/resources/css/menu.css">
 <div class="layout-admin">
 
     <!-- Contenido Principal -->
@@ -61,7 +60,6 @@
                                     </td>
                                     <td>$${p.precio}</td>
                                     <td>
-                                        <!-- Reusamos las clases de badges que ya tienes -->
                                         <c:choose>
                                             <c:when test="${p.disponible}">
                                                 <span class="badge badge-ENTREGADO">Activo</span>
@@ -74,9 +72,17 @@
                                     <td>
                                         <div style="display: flex; gap: 8px;">
                                             <a href="${ctx}/admin/productos?accion=editar&id=${p.idProducto}" class="btn btn-borde btn-chico">Editar</a>
-                                            <!-- Usamos JavaScript para confirmar antes de eliminar -->
-                                            <!-- Botón actualizado para abrir el modal -->
-                                            <button onclick="confirmarEliminacion(${p.idProducto})" class="btn btn-peligro btn-chico">Eliminar</button>
+
+                                            <c:choose>
+                                                <c:when test="${p.disponible}">
+                                                    <!-- Botón de Eliminar (Desactivar) -->
+                                                    <button onclick="confirmarEliminacion(${p.idProducto})" class="btn btn-peligro btn-chico">Eliminar</button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <!-- Botón de Activar -->
+                                                    <button onclick="confirmarActivacion(${p.idProducto})" class="btn btn-verde-suave btn-chico">Activar</button>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
                                     </td>
                                 </tr>
@@ -126,21 +132,35 @@
     </div>
 </div>
 
+<!-- Modal de Confirmación de Activación -->
+<div class="modal-fondo" id="modalActivar">
+    <div class="tarjeta modal-caja">
+        <h3 style="color: #2e7d32;">¿Reactivar Platillo?</h3>
+        <p class="texto-suave" style="margin-bottom: 24px;">El platillo volverá a ser visible para los clientes en el menú principal. ¿Deseas continuar?</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <button type="button" class="btn btn-borde" onclick="cerrarModalActivar()">Cancelar</button>
+            <a href="#" id="btnConfirmarActivar" class="btn btn-verde-suave">Sí, reactivar</a>
+        </div>
+    </div>
+</div>
+
 <script>
+    //DESACTIVAR
     function confirmarEliminacion(idProducto) {
-        // Obtenemos los elementos
-        const modal = document.getElementById('modalEliminar');
-        const btnConfirmar = document.getElementById('btnConfirmarEliminar');
-
-        // Construimos la ruta dinámica con el ID del producto seleccionado
-        btnConfirmar.href = '${ctx}/admin/productos?accion=eliminar&id=' + idProducto;
-
-        // Mostramos el modal
-        modal.classList.add('activo');
+        document.getElementById('btnConfirmarEliminar').href = '${ctx}/admin/productos?accion=eliminar&id=' + idProducto;
+        document.getElementById('modalEliminar').classList.add('activo');
     }
-
     function cerrarModal() {
         document.getElementById('modalEliminar').classList.remove('activo');
+    }
+
+    //ACTIVAR
+    function confirmarActivacion(idProducto) {
+        document.getElementById('btnConfirmarActivar').href = '${ctx}/admin/productos?accion=activar&id=' + idProducto;
+        document.getElementById('modalActivar').classList.add('activo');
+    }
+    function cerrarModalActivar() {
+        document.getElementById('modalActivar').classList.remove('activo');
     }
 </script>
 <%@ include file="/WEB-INF/views/plantilla/pie-admin.jspf" %>

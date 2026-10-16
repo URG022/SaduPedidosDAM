@@ -31,10 +31,6 @@ public class ProductoDAOImpl implements ProductoDAO {
         return lista;
     }
 
-    /**
-     * Convierte una fila en Producto. Dev 2 puede reutilizarlo en sus
-     * consultas.
-     */
     protected Producto mapear(ResultSet rs) throws SQLException {
         Producto p = new Producto();
         p.setIdProducto(rs.getLong("id_producto"));
@@ -153,12 +149,11 @@ public class ProductoDAOImpl implements ProductoDAO {
     }
 
     //Paginador
-    // 1. Método para obtener la lista cortada (15 registros)
+    // Método para obtener la lista cortada (15 registros)
     public List<Producto> obtenerProductosPaginados(int limite, int offset) {
         List<Producto> lista = new ArrayList<>();
         String sql = "SELECT * FROM productos ORDER BY id_producto ASC LIMIT ? OFFSET ?";
 
-        // Reemplaza Conexion.getConnection() con tu clase real de conexión
         try (Connection con = ConexionBD.obtenerConexion(); 
              PreparedStatement ps = con.prepareStatement(sql)) {
             
@@ -187,7 +182,7 @@ public class ProductoDAOImpl implements ProductoDAO {
         return lista;
     }
 
-    // 2. Método para contar el total exacto de registros en la tabla
+    //Método para contar el total exacto de registros en la tabla
     public int contarTotalProductos() {
         int total = 0;
         String sql = "SELECT COUNT(*) FROM productos";
@@ -205,4 +200,16 @@ public class ProductoDAOImpl implements ProductoDAO {
         }
         return total;
     }
+    
+    public boolean activarProducto(Long idProducto) {
+    String sql = "UPDATE productos SET disponible = 1 WHERE id_producto = ?";
+    try (Connection con = ConexionBD.obtenerConexion();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setLong(1, idProducto);
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
 }

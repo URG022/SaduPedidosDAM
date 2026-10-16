@@ -22,7 +22,7 @@ public class AdminProductoServlet extends HttpServlet {
         servicioProducto = new ServicioProducto();
     }
 
-    @Override
+   @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -45,11 +45,20 @@ public class AdminProductoServlet extends HttpServlet {
                     request.getRequestDispatcher("/WEB-INF/views/admin/form_producto.jsp").forward(request, response);
                     break;
                 case "eliminar":
-                    // Elimina y recarga la tabla
+                    // Elimina (desactiva) y recarga la tabla con mensaje de éxito 1
                     Long idEliminar = Long.parseLong(request.getParameter("id"));
                     servicioProducto.eliminarProducto(idEliminar);
-                    response.sendRedirect(request.getContextPath() + "/admin/productos");
+                    response.sendRedirect(request.getContextPath() + "/admin/productos?exito=1");
                     break;
+                    
+                // Reactiva la cuenta
+                case "activar":
+                    // Activa y recarga la tabla con mensaje de éxito 2
+                    Long idActivar = Long.parseLong(request.getParameter("id"));
+                    servicioProducto.activarProducto(idActivar);
+                    response.sendRedirect(request.getContextPath() + "/admin/productos?exito=2");
+                    break;
+
                 default:
                     // Configuración de la paginación
                     int limite = 15;

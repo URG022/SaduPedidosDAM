@@ -3,11 +3,6 @@ package sv.edu.itca.sadu.dao;
 import java.util.List;
 import sv.edu.itca.sadu.model.Producto;
 
-/**
- * Acceso a la tabla productos.
- * Dev 1 implemento listarDestacados() para el Inicio.
- * Dev 2 agrega aqui el resto del CRUD (listar, buscarPorId, insertar, actualizar, desactivar...).
- */
 public interface ProductoDAO {
 
     List<Producto> listarDestacados();
@@ -20,4 +15,5 @@ public interface ProductoDAO {
     List<Producto> obtenerTodos() throws DAOException;
     List<Producto> obtenerProductosPaginados(int limite, int offset);
     int contarTotalProductos();
+    boolean activarProducto(Long idProducto);
 }

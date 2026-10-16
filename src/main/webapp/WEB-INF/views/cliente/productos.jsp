@@ -4,45 +4,7 @@
 <c:set var="titulo" value="Nuestro Menú"/>
 <c:set var="seccion" value="menu"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado.jspf" %>
-
-<style>
-    .menu-cabecera {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-    .menu-titulo {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    .menu-buscador {
-        width: 100%;
-        max-width: 320px;
-    }
-    .menu-filtros {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 32px;
-    }
-    .platillo-foto {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        color: var(--sadu-texto-suave);
-    }
-    .platillo-pie {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: auto;
-    }
-</style>
+<link rel="stylesheet" href="${ctx}/resources/css/menu.css">
 
 <main class="pagina">
     <div class="contenedor">
