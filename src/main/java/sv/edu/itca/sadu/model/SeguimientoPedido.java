@@ -1,17 +1,25 @@
 package sv.edu.itca.sadu.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import sv.edu.itca.sadu.model.EstadoPedido;
 
 public class SeguimientoPedido {
 
+    private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     private Long idSeguimiento;
     private Long idPedido;
-    private String estado;
+    private EstadoPedido estado;
     private String comentario;
     private Long idUsuario;
     private LocalDateTime fechaRegistro;
 
     public SeguimientoPedido() {
+    }
+    
+    public String getFechaRegistroTexto() {
+        return fechaRegistro == null ? "" : FORMATO.format(fechaRegistro);
     }
 
     public Long getIdSeguimiento() {
@@ -30,11 +38,11 @@ public class SeguimientoPedido {
         this.idPedido = idPedido;
     }
 
-    public String getEstado() {
+    public EstadoPedido getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoPedido estado) {
         this.estado = estado;
     }
 

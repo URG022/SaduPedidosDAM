@@ -116,7 +116,7 @@ CREATE TABLE detalle_pedido (
 );
 
 -- ---------------------------------------------------------------------
--- 7. seguimiento_pedido: historial de estados                  [Dev 3]
+-- 7. seguimiento_pedido: historial de estados                  [Dev 4]
 -- ---------------------------------------------------------------------
 CREATE TABLE seguimiento_pedido (
   id_seguimiento BIGINT PRIMARY KEY AUTO_INCREMENT,

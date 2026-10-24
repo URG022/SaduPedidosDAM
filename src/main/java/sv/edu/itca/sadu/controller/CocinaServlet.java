@@ -24,118 +24,132 @@ public class CocinaServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        PedidoDAO pedidoDAO = new PedidoDAOImpl();
-        pedidoService = new PedidoService(pedidoDAO);
+        pedidoService = new PedidoService();
     }
 
-    private boolean tienePermiso(HttpServletRequest request) {
+    /**
+     * Usuario con sesión iniciada, o null si no hay.
+     */
+    private Usuario obtenerUsuario(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-
-        if (session == null) {
-            return false;
+        if (session != null && session.getAttribute("usuario") instanceof Usuario) {
+            return (Usuario) session.getAttribute("usuario");
         }
+        return null;
+    }
 
-        Object objeto = session.getAttribute("usuario");
-
-        if (!(objeto instanceof Usuario)) {
-            return false;
-        }
-
-        Usuario usuario = (Usuario) objeto;
+    private boolean tienePermiso(Usuario usuario) {
         String rol = usuario.getRol();
+        return "ADMINISTRADOR".equals(rol) || "COCINA".equals(rol);
+    }
 
-        return "ADMIN".equals(rol) || "COCINA".equals(rol);
+    private EstadoPedido parsearEstado(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException("Debes indicar el estado.");
+        }
+        try {
+            return EstadoPedido.valueOf(texto.trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("El estado indicado no es válido.");
+        }
+    }
+
+    /**
+     * Carga el tablero. filtro: vacío = pedidos activos, TODOS = historial
+     * completo, o el nombre de un estado.
+     */
+    private void cargarTablero(HttpServletRequest request, HttpServletResponse response, String filtro)
+            throws ServletException, IOException {
+
+        List<Pedido> pedidos;
+        EstadoPedido estadoFiltro = null;
+
+        if (filtro == null || filtro.trim().isEmpty()) {
+            pedidos = pedidoService.obtenerPedidosPorEstado(estadoFiltro);
+        } else if ("TODOS".equalsIgnoreCase(filtro.trim())) {
+            pedidos = pedidoService.obtenerTodosLosPedidos();
+        } else {
+            estadoFiltro = parsearEstado(filtro);
+            pedidos = pedidoService.obtenerPedidosPorEstado(estadoFiltro);
+        }
+
+        // Cocina necesita ver los platillos de cada pedido
+        for (Pedido p : pedidos) {
+            p.setDetalles(pedidoService.obtenerDetalles(p.getIdPedido()));
+        }
+
+        request.setAttribute("pedidos", pedidos);
+        request.setAttribute("estados", EstadoPedido.values());
+        request.setAttribute("estadoFiltro", estadoFiltro);
+
+        request.getRequestDispatcher("/WEB-INF/views/cocina/tablero.jsp")
+                .forward(request, response);
     }
 
     @Override
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
+            HttpServletResponse response)
             throws ServletException, IOException {
 
-        if (!tienePermiso(request)) {
-            response.sendError(
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "No tienes permiso para acceder a cocina.");
+        Usuario usuario = obtenerUsuario(request);
+        if (usuario == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        if (!tienePermiso(usuario)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "No tienes permiso para acceder a cocina.");
             return;
         }
 
         try {
-            String estadoParametro = request.getParameter("estado");
-            List<Pedido> pedidos;
-
-            if (estadoParametro == null
-                    || estadoParametro.trim().isEmpty()) {
-
-                pedidos = pedidoService.obtenerTodosLosPedidos();
-
-            } else {
-                EstadoPedido estado =
-                        EstadoPedido.valueOf(estadoParametro);
-
-                pedidos = pedidoService.obtenerPedidosPorEstado(estado);
-            }
-
-            request.setAttribute("pedidos", pedidos);
-            request.setAttribute(
-                    "estados", EstadoPedido.values());
-
-            request.getRequestDispatcher(
-                    "/WEB-INF/views/cocina/tablero.jsp")
-                    .forward(request, response);
-
+            cargarTablero(request, response, request.getParameter("estado"));
         } catch (IllegalArgumentException e) {
-            response.sendError(
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    "El estado indicado no es válido.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response)
+            HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
-        if (!tienePermiso(request)) {
-            response.sendError(
-                    HttpServletResponse.SC_FORBIDDEN,
-                    "No tienes permiso para modificar pedidos.");
+        Usuario usuario = obtenerUsuario(request);
+        if (usuario == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        if (!tienePermiso(usuario)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "No tienes permiso para modificar pedidos.");
             return;
         }
 
-        HttpSession session = request.getSession(false);
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-
         try {
-            Long idPedido = Long.parseLong(
-                    request.getParameter("idPedido"));
-
-            EstadoPedido nuevoEstado = EstadoPedido.valueOf(
-                    request.getParameter("estado"));
-
+            Long idPedido = Long.parseLong(request.getParameter("idPedido"));
+            EstadoPedido nuevoEstado = parsearEstado(request.getParameter("estado"));
             String comentario = request.getParameter("comentario");
 
             boolean actualizado = pedidoService.cambiarEstado(
-                    idPedido,
-                    nuevoEstado,
-                    comentario,
-                    usuario.getIdUsuario()
-            );
+                    idPedido, nuevoEstado, comentario, usuario.getIdUsuario());
 
             if (!actualizado) {
-                response.sendError(
-                        HttpServletResponse.SC_NOT_FOUND,
-                        "No se encontró el pedido.");
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "No se encontró el pedido.");
                 return;
             }
 
-            response.sendRedirect(
-                    request.getContextPath() + "/cocina?exito=1");
+            response.sendRedirect(request.getContextPath() + "/cocina?exito=1");
+
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El identificador del pedido no es válido.");
+
+        } catch (IllegalArgumentException e) {
+            // Regla de negocio (transición no permitida, comentario largo...): se muestra en el tablero
+            request.setAttribute("error", e.getMessage());
+            cargarTablero(request, response, null);
 
         } catch (Exception e) {
-            throw new ServletException(
-                    "No se pudo actualizar el pedido.", e);
+            throw new ServletException("No se pudo actualizar el pedido.", e);
         }
     }
 }

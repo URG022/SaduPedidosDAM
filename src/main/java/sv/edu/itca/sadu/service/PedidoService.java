@@ -1,104 +1,150 @@
 package sv.edu.itca.sadu.service;
 
+import sv.edu.itca.sadu.dao.ClienteDAO;
+import sv.edu.itca.sadu.dao.ClienteDAOImpl;
+import sv.edu.itca.sadu.dao.DetallePedidoDAO;
+import sv.edu.itca.sadu.dao.DetallePedidoDAOImpl;
 import sv.edu.itca.sadu.dao.PedidoDAO;
-import sv.edu.itca.sadu.model.Pedido;
+import sv.edu.itca.sadu.dao.PedidoDAOImpl;
+import sv.edu.itca.sadu.dao.ProductoDAO;
+import sv.edu.itca.sadu.dao.ProductoDAOImpl;
+import sv.edu.itca.sadu.dao.SeguimientoPedidoDAO;
+import sv.edu.itca.sadu.dao.SeguimientoPedidoDAOImpl;
+import sv.edu.itca.sadu.model.Carrito;
+import sv.edu.itca.sadu.model.Cliente;
 import sv.edu.itca.sadu.model.DetallePedido;
-import sv.edu.itca.sadu.model.SeguimientoPedido;
 import sv.edu.itca.sadu.model.EstadoPedido;
+import sv.edu.itca.sadu.model.ItemCarrito;
+import sv.edu.itca.sadu.model.Pedido;
+import sv.edu.itca.sadu.model.Producto;
+import sv.edu.itca.sadu.model.SeguimientoPedido;
 import sv.edu.itca.sadu.model.TipoEntrega;
 import sv.edu.itca.sadu.util.ConexionBD;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PedidoService {
 
     private final PedidoDAO pedidoDAO;
+    private final DetallePedidoDAO detalleDAO;
+    private final SeguimientoPedidoDAO seguimientoDAO;
+    private final ProductoDAO productoDAO;
+    private final ClienteDAO clienteDAO;
 
-    public PedidoService(PedidoDAO pedidoDAO) {
-        this.pedidoDAO = pedidoDAO;
+    // Para usarlo directo desde los servlets: new PedidoService()
+    public PedidoService() {
+        this(new PedidoDAOImpl(), new DetallePedidoDAOImpl(), new SeguimientoPedidoDAOImpl(),
+                new ProductoDAOImpl(), new ClienteDAOImpl());
     }
 
+    public PedidoService(PedidoDAO pedidoDAO, DetallePedidoDAO detalleDAO,
+            SeguimientoPedidoDAO seguimientoDAO, ProductoDAO productoDAO,
+            ClienteDAO clienteDAO) {
+        this.pedidoDAO = pedidoDAO;
+        this.detalleDAO = detalleDAO;
+        this.seguimientoDAO = seguimientoDAO;
+        this.productoDAO = productoDAO;
+        this.clienteDAO = clienteDAO;
+    }
+
+    // =====================================================================
+    //  P4 - Confirmar pedido desde el carrito
+    // =====================================================================
     /**
-     * Crea un pedido, sus detalles y el seguimiento inicial
-     * dentro de una única transacción.
+     * Crea el pedido, sus detalles y el seguimiento RECIBIDO en una sola
+     * transacción. Los precios se leen de la BD; los del carrito solo se usan
+     * para mostrar.
      *
-     * @return ID del pedido creado.
+     * @param tipoEntrega texto tal como llega del formulario (EN_LOCAL,
+     * PARA_LLEVAR, DOMICILIO)
+     * @return ID del pedido creado
+     * @throws IllegalArgumentException si algo no es válido (mostrar el mensaje
+     * al usuario)
      */
-    public Long crearPedido(
-            Pedido pedido,
-            List<DetallePedido> detalles,
-            Long idUsuario) throws SQLException {
+    public Long crearPedido(Carrito carrito, Long idUsuario, String tipoEntrega,
+            String direccion, String notas) throws SQLException {
 
-        validarPedido(pedido, detalles);
+        if (carrito == null || carrito.isVacio()) {
+            throw new IllegalArgumentException("Tu carrito está vacío.");
+        }
 
+        TipoEntrega tipo = parsearTipoEntrega(tipoEntrega);
+
+        String direccionLimpia = direccion == null ? "" : direccion.trim();
+        String notasLimpias = notas == null ? "" : notas.trim();
+
+        if (tipo == TipoEntrega.DOMICILIO && direccionLimpia.isEmpty()) {
+            throw new IllegalArgumentException("Debes ingresar una dirección de entrega.");
+        }
+        if (direccionLimpia.length() > 200) {
+            throw new IllegalArgumentException("La dirección no puede pasar de 200 caracteres.");
+        }
+        if (notasLimpias.length() > 300) {
+            throw new IllegalArgumentException("Las notas no pueden pasar de 300 caracteres.");
+        }
+
+        Cliente cliente = clienteDAO.obtenerPorIdUsuario(idUsuario);
+        if (cliente == null) {
+            throw new IllegalArgumentException("No se encontró tu perfil de cliente.");
+        }
+
+        // Detalles con el precio real de la BD
+        List<DetallePedido> detalles = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
-        // Calcular subtotales y total del pedido.
-        for (DetallePedido detalle : detalles) {
+        for (ItemCarrito item : carrito.getItems()) {
+            Producto producto = productoDAO.obtenerPorId(item.getIdProducto());
 
-            if (detalle.getCantidad() <= 0) {
+            if (producto == null || !producto.isDisponible()) {
                 throw new IllegalArgumentException(
-                        "La cantidad debe ser mayor que cero.");
+                        "«" + item.getNombre() + "» ya no está disponible. Quítalo del carrito para continuar.");
             }
 
-            if (detalle.getIdProducto() == null) {
-                throw new IllegalArgumentException(
-                        "Cada detalle debe tener un producto.");
-            }
+            DetallePedido detalle = new DetallePedido();
+            detalle.setIdProducto(producto.getIdProducto());
+            detalle.setNombreProducto(producto.getNombre());
+            detalle.setCantidad(item.getCantidad());
+            detalle.setPrecioUnitario(producto.getPrecio());
+            detalle.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad())));
 
-            BigDecimal precio = detalle.getPrecioUnitario();
-
-            if (precio == null || precio.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException(
-                        "El precio del producto debe ser mayor que cero.");
-            }
-
-            BigDecimal subtotal = precio.multiply(
-                    BigDecimal.valueOf(detalle.getCantidad()));
-
-            detalle.setSubtotal(subtotal);
-            total = total.add(subtotal);
+            total = total.add(detalle.getSubtotal());
+            detalles.add(detalle);
         }
 
-        pedido.setEstado(EstadoPedido.RECIBIDO.name());
+        Pedido pedido = new Pedido();
+        pedido.setIdCliente(cliente.getIdCliente());
+        pedido.setTipoEntrega(tipo);
+        pedido.setEstado(EstadoPedido.RECIBIDO);
+        pedido.setDireccionEntrega(tipo == TipoEntrega.DOMICILIO ? direccionLimpia : null);
+        pedido.setNotas(notasLimpias.isEmpty() ? null : notasLimpias);
         pedido.setTotal(total);
-
-        if (pedido.getTipoEntrega() != null) {
-            pedido.setTipoEntrega(
-                    TipoEntrega.valueOf(pedido.getTipoEntrega()).name());
-        }
 
         try (Connection con = ConexionBD.obtenerConexion()) {
 
             con.setAutoCommit(false);
 
             try {
-                // 1. Crear el pedido.
-                Long idPedido = pedidoDAO.crearPedido(pedido, con);
+                // 1. Encabezado del pedido
+                Long idPedido = pedidoDAO.insertar(con, pedido);
 
-                // 2. Guardar los detalles.
-                for (DetallePedido detalle : detalles) {
-                    detalle.setIdPedido(idPedido);
-                    pedidoDAO.agregarDetalle(detalle, con);
-                }
+                // 2. Platillos
+                detalleDAO.insertarLote(con, idPedido, detalles);
 
-                // 3. Registrar el estado inicial.
-                SeguimientoPedido seguimiento =
-                        new SeguimientoPedido();
-
+                // 3. Estado inicial
+                SeguimientoPedido seguimiento = new SeguimientoPedido();
                 seguimiento.setIdPedido(idPedido);
-                seguimiento.setEstado(EstadoPedido.RECIBIDO.name());
+                seguimiento.setEstado(EstadoPedido.RECIBIDO);
                 seguimiento.setComentario("Pedido recibido.");
                 seguimiento.setIdUsuario(idUsuario);
+                seguimientoDAO.insertar(con, seguimiento);
 
-                pedidoDAO.registrarSeguimiento(seguimiento, con);
-
-                // 4. Confirmar todos los cambios.
+                // 4. Confirmar todo
                 con.commit();
-
                 return idPedido;
 
             } catch (SQLException | RuntimeException e) {
@@ -107,78 +153,83 @@ public class PedidoService {
                 } catch (SQLException errorRollback) {
                     e.addSuppressed(errorRollback);
                 }
-
                 throw e;
             }
         }
     }
 
-    /**
-     * Valida los datos generales del pedido.
-     */
-    private void validarPedido(
-            Pedido pedido,
-            List<DetallePedido> detalles) {
-
-        if (pedido == null) {
-            throw new IllegalArgumentException(
-                    "El pedido no puede ser nulo.");
+    private TipoEntrega parsearTipoEntrega(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException("Debes seleccionar el tipo de entrega.");
         }
-
-        if (pedido.getIdCliente() == null) {
-            throw new IllegalArgumentException(
-                    "Debes indicar el cliente del pedido.");
-        }
-
-        if (detalles == null || detalles.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "El pedido debe contener al menos un producto.");
-        }
-
-        if (pedido.getTipoEntrega() == null) {
-            throw new IllegalArgumentException(
-                    "Debes seleccionar el tipo de entrega.");
-        }
-
-        // Comprueba que el tipo de entrega sea válido.
-        TipoEntrega tipoEntrega;
-
         try {
-            tipoEntrega = TipoEntrega.valueOf(
-                    pedido.getTipoEntrega());
+            return TipoEntrega.valueOf(texto.trim());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "El tipo de entrega no es válido.");
-        }
-
-        // Para entrega a domicilio se requiere dirección.
-        if (tipoEntrega == TipoEntrega.DOMICILIO
-                && (pedido.getDireccionEntrega() == null
-                || pedido.getDireccionEntrega().trim().isEmpty())) {
-
-            throw new IllegalArgumentException(
-                    "Debes ingresar una dirección de entrega.");
+            throw new IllegalArgumentException("El tipo de entrega no es válido.");
         }
     }
 
+    // =====================================================================
+    //  P5 y P6 - Consultas del cliente
+    // =====================================================================
     /**
-     * Cambia el estado de un pedido y registra
-     * el cambio en su historial.
+     * P5: pedidos del usuario con sesión iniciada, del más reciente al más
+     * antiguo.
      */
-    public boolean cambiarEstado(
-            Long idPedido,
-            EstadoPedido nuevoEstado,
-            String comentario,
-            Long idUsuario) throws SQLException {
+    public List<Pedido> listarMisPedidos(Long idUsuario) {
+        Cliente cliente = clienteDAO.obtenerPorIdUsuario(idUsuario);
+        if (cliente == null) {
+            return Collections.emptyList();
+        }
+        return pedidoDAO.listarPorCliente(cliente.getIdCliente());
+    }
 
-        if (idPedido == null || idPedido <= 0) {
-            throw new IllegalArgumentException(
-                    "El ID del pedido no es válido.");
+    /**
+     * P6: pedido completo (platillos y línea de tiempo) o null si no existe o
+     * no pertenece a este usuario.
+     */
+    public Pedido obtenerDetalleDeCliente(Long idPedido, Long idUsuario) {
+        validarIdPedido(idPedido);
+
+        Cliente cliente = clienteDAO.obtenerPorIdUsuario(idUsuario);
+        if (cliente == null) {
+            return null;
         }
 
+        Pedido pedido = pedidoDAO.buscarPorIdYCliente(idPedido, cliente.getIdCliente());
+        if (pedido == null) {
+            return null;
+        }
+
+        pedido.setDetalles(detalleDAO.listarPorPedido(idPedido));
+        pedido.setSeguimientos(seguimientoDAO.listarPorPedido(idPedido));
+        return pedido;
+    }
+
+    // =====================================================================
+    //  Cocina / administración
+    // =====================================================================
+    /**
+     * Cambia el estado de un pedido y lo registra en su historial.
+     */
+    public boolean cambiarEstado(Long idPedido, EstadoPedido nuevoEstado,
+            String comentario, Long idUsuario) throws SQLException {
+
+        validarIdPedido(idPedido);
+
         if (nuevoEstado == null) {
-            throw new IllegalArgumentException(
-                    "Debes indicar el nuevo estado.");
+            throw new IllegalArgumentException("Debes indicar el nuevo estado.");
+        }
+
+        Pedido actual = pedidoDAO.obtenerPorId(idPedido);
+        if (actual == null) {
+            return false;
+        }
+        if (actual.getEstado() == EstadoPedido.ENTREGADO || actual.getEstado() == EstadoPedido.CANCELADO) {
+            throw new IllegalArgumentException("El pedido ya está finalizado y no puede cambiar de estado.");
+        }
+        if (actual.getEstado() == nuevoEstado) {
+            throw new IllegalArgumentException("El pedido ya se encuentra en ese estado.");
         }
 
         try (Connection con = ConexionBD.obtenerConexion()) {
@@ -186,23 +237,19 @@ public class PedidoService {
             con.setAutoCommit(false);
 
             try {
-                boolean actualizado = pedidoDAO.actualizarEstado(
-                        idPedido, nuevoEstado, con);
+                boolean actualizado = pedidoDAO.actualizarEstado(idPedido, nuevoEstado, con);
 
                 if (!actualizado) {
                     con.rollback();
                     return false;
                 }
 
-                SeguimientoPedido seguimiento =
-                        new SeguimientoPedido();
-
+                SeguimientoPedido seguimiento = new SeguimientoPedido();
                 seguimiento.setIdPedido(idPedido);
-                seguimiento.setEstado(nuevoEstado.name());
+                seguimiento.setEstado(nuevoEstado);
                 seguimiento.setComentario(comentario);
                 seguimiento.setIdUsuario(idUsuario);
-
-                pedidoDAO.registrarSeguimiento(seguimiento, con);
+                seguimientoDAO.insertar(con, seguimiento);
 
                 con.commit();
                 return true;
@@ -213,67 +260,40 @@ public class PedidoService {
                 } catch (SQLException errorRollback) {
                     e.addSuppressed(errorRollback);
                 }
-
                 throw e;
             }
         }
     }
 
-    /**
-     * Consulta el pedido por su identificador.
-     */
     public Pedido obtenerPedido(Long idPedido) {
-        if (idPedido == null || idPedido <= 0) {
-            throw new IllegalArgumentException(
-                    "El ID del pedido no es válido.");
-        }
-
+        validarIdPedido(idPedido);
         return pedidoDAO.obtenerPorId(idPedido);
     }
 
-    /**
-     * Consulta los pedidos por estado.
-     */
-    public List<Pedido> obtenerPedidosPorEstado(
-            EstadoPedido estado) {
-
+    public List<Pedido> obtenerPedidosPorEstado(EstadoPedido estado) {
         if (estado == null) {
-            throw new IllegalArgumentException(
-                    "Debes indicar el estado del pedido.");
+            throw new IllegalArgumentException("Debes indicar el estado del pedido.");
         }
-
         return pedidoDAO.obtenerPorEstado(estado);
     }
 
-    /**
-     * Consulta todos los pedidos.
-     */
     public List<Pedido> obtenerTodosLosPedidos() {
         return pedidoDAO.obtenerTodos();
     }
 
-    /**
-     * Consulta los productos de un pedido.
-     */
     public List<DetallePedido> obtenerDetalles(Long idPedido) {
         validarIdPedido(idPedido);
-        return pedidoDAO.obtenerDetalles(idPedido);
+        return detalleDAO.listarPorPedido(idPedido);
     }
 
-    /**
-     * Consulta el historial de un pedido.
-     */
-    public List<SeguimientoPedido> obtenerSeguimiento(
-            Long idPedido) {
-
+    public List<SeguimientoPedido> obtenerSeguimiento(Long idPedido) {
         validarIdPedido(idPedido);
-        return pedidoDAO.obtenerSeguimiento(idPedido);
+        return seguimientoDAO.listarPorPedido(idPedido);
     }
 
     private void validarIdPedido(Long idPedido) {
         if (idPedido == null || idPedido <= 0) {
-            throw new IllegalArgumentException(
-                    "El ID del pedido no es válido.");
+            throw new IllegalArgumentException("El ID del pedido no es válido.");
         }
     }
 }

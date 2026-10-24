@@ -1,7 +1,12 @@
-
 package sv.edu.itca.sadu.controller;
 
+import sv.edu.itca.sadu.dao.ProductoDAO;
+import sv.edu.itca.sadu.dao.ProductoDAOImpl;
+import sv.edu.itca.sadu.model.Carrito;
+import sv.edu.itca.sadu.model.Cliente;
 import sv.edu.itca.sadu.model.ItemCarrito;
+import sv.edu.itca.sadu.model.Producto;
+import sv.edu.itca.sadu.model.TipoEntrega;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,9 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 @WebServlet(name = "CarritoServlet", urlPatterns = {"/carrito"})
 public class CarritoServlet extends HttpServlet {
@@ -21,116 +23,105 @@ public class CarritoServlet extends HttpServlet {
     private static final String VISTA = "/WEB-INF/views/carrito.jsp";
     private static final String CARRITO = "carrito";
 
-    @SuppressWarnings("unchecked")
-    private List<ItemCarrito> obtenerCarrito(HttpSession session) {
-        List<ItemCarrito> carrito =
-                (List<ItemCarrito>) session.getAttribute(CARRITO);
+    private ProductoDAO productoDAO;
 
-        if (carrito == null) {
-            carrito = new ArrayList<>();
-            session.setAttribute(CARRITO, carrito);
+    @Override
+    public void init() throws ServletException {
+        productoDAO = new ProductoDAOImpl();
+    }
+
+    /** Devuelve el carrito de la sesión; si no existe (o es de una versión vieja), crea uno nuevo. */
+    private Carrito obtenerCarrito(HttpSession session) {
+        Object guardado = session.getAttribute(CARRITO);
+        if (guardado instanceof Carrito) {
+            return (Carrito) guardado;
         }
-
-        return carrito;
+        Carrito nuevo = new Carrito();
+        session.setAttribute(CARRITO, nuevo);
+        return nuevo;
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession();
-        List<ItemCarrito> carrito = obtenerCarrito(session);
-
-        request.setAttribute("carrito", carrito);
-        request.getRequestDispatcher(VISTA)
-                .forward(request, response);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response)
-            throws ServletException, IOException {
-
-        request.setCharacterEncoding("UTF-8");
-
+    private boolean haySesionCliente(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
+        return session != null && session.getAttribute("cliente") instanceof Cliente;
+    }
 
-        if (session == null) {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        if (!haySesionCliente(request)) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        List<ItemCarrito> carrito = obtenerCarrito(session);
+        obtenerCarrito(request.getSession());
+        request.setAttribute("tiposEntrega", TipoEntrega.values());
+        request.getRequestDispatcher(VISTA).forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        if (!haySesionCliente(request)) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        Carrito carrito = obtenerCarrito(request.getSession());
         String accion = request.getParameter("accion");
 
         try {
-            if ("actualizar".equals(accion)) {
+            if ("agregar".equals(accion)) {
 
-                Long idProducto = Long.parseLong(
-                        request.getParameter("idProducto"));
+                Long idProducto = Long.parseLong(request.getParameter("idProducto"));
 
-                int cantidad = Integer.parseInt(
-                        request.getParameter("cantidad"));
-
+                // La cantidad es opcional (el menú puede mandar solo el id)
+                int cantidad = 1;
+                String cantidadTexto = request.getParameter("cantidad");
+                if (cantidadTexto != null && !cantidadTexto.trim().isEmpty()) {
+                    cantidad = Integer.parseInt(cantidadTexto.trim());
+                }
                 if (cantidad <= 0) {
-                    throw new IllegalArgumentException(
-                            "La cantidad debe ser mayor que cero.");
+                    throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
                 }
 
-                boolean encontrado = false;
-
-                for (ItemCarrito item : carrito) {
-                    if (item.getIdProducto().equals(idProducto)) {
-                        item.setCantidad(cantidad);
-                        encontrado = true;
-                        break;
-                    }
+                // Nombre y precio salen de la BD, nunca del formulario
+                Producto p = productoDAO.obtenerPorId(idProducto);
+                if (p == null || !p.isDisponible()) {
+                    throw new IllegalArgumentException("Ese platillo no está disponible.");
                 }
 
-                if (!encontrado) {
-                    throw new IllegalArgumentException(
-                            "El producto no está en el carrito.");
-                }
+                carrito.agregar(new ItemCarrito(p.getIdProducto(), p.getNombre(), p.getPrecio(), cantidad));
+
+            } else if ("sumar".equals(accion)) {
+                carrito.sumar(Long.parseLong(request.getParameter("idProducto")));
+
+            } else if ("restar".equals(accion)) {
+                carrito.restar(Long.parseLong(request.getParameter("idProducto")));
 
             } else if ("eliminar".equals(accion)) {
-
-                Long idProducto = Long.parseLong(
-                        request.getParameter("idProducto"));
-
-                Iterator<ItemCarrito> iterator = carrito.iterator();
-
-                while (iterator.hasNext()) {
-                    ItemCarrito item = iterator.next();
-
-                    if (item.getIdProducto().equals(idProducto)) {
-                        iterator.remove();
-                        break;
-                    }
-                }
+                carrito.quitar(Long.parseLong(request.getParameter("idProducto")));
 
             } else if ("vaciar".equals(accion)) {
-
-                carrito.clear();
+                carrito.vaciar();
 
             } else {
-                throw new IllegalArgumentException(
-                        "La acción solicitada no es válida.");
+                throw new IllegalArgumentException("La acción solicitada no es válida.");
             }
 
-            response.sendRedirect(
-                    request.getContextPath() + "/carrito?exito=1");
+            response.sendRedirect(request.getContextPath() + "/carrito");
 
         } catch (NumberFormatException e) {
-            response.sendError(
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    "Los datos enviados no son válidos.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Los datos enviados no son válidos.");
 
         } catch (IllegalArgumentException e) {
             request.setAttribute("error", e.getMessage());
-            request.setAttribute("carrito", carrito);
-            request.getRequestDispatcher(VISTA)
-                    .forward(request, response);
+            request.setAttribute("tiposEntrega", TipoEntrega.values());
+            request.getRequestDispatcher(VISTA).forward(request, response);
         }
     }
 }

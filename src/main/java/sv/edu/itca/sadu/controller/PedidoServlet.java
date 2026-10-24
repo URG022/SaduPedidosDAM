@@ -2,10 +2,7 @@ package sv.edu.itca.sadu.controller;
 
 import sv.edu.itca.sadu.dao.PedidoDAO;
 import sv.edu.itca.sadu.dao.PedidoDAOImpl;
-import sv.edu.itca.sadu.model.Cliente;
-import sv.edu.itca.sadu.model.DetallePedido;
-import sv.edu.itca.sadu.model.EstadoPedido;
-import sv.edu.itca.sadu.model.ItemCarrito;
+import sv.edu.itca.sadu.model.*;
 import sv.edu.itca.sadu.model.Pedido;
 import sv.edu.itca.sadu.service.PedidoService;
 
@@ -27,21 +24,28 @@ public class PedidoServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        PedidoDAO pedidoDAO = new PedidoDAOImpl();
-        pedidoService = new PedidoService(pedidoDAO);
+        pedidoService = new PedidoService();
+    }
+
+    /**
+     * Cliente con sesión iniciada, o null si no hay.
+     */
+    private Cliente obtenerCliente(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("cliente") instanceof Cliente) {
+            return (Cliente) session.getAttribute("cliente");
+        }
+        return null;
     }
 
     @Override
     protected void doGet(HttpServletRequest request,
-                         HttpServletResponse response)
+            HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(false);
-
-        if (session == null
-                || session.getAttribute("cliente") == null) {
-            response.sendRedirect(
-                    request.getContextPath() + "/login");
+        Cliente cliente = obtenerCliente(request);
+        if (cliente == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -51,6 +55,13 @@ public class PedidoServlet extends HttpServlet {
             if ("detalle".equals(accion)) {
                 Long idPedido = Long.parseLong(
                         request.getParameter("id"));
+
+                // Devuelve null si no existe o si el pedido es de otro cliente
+                Pedido pedido = pedidoService.obtenerDetalleDeCliente(idPedido, cliente.getIdUsuario());
+                if (pedido == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "No encontramos ese pedido.");
+                    return;
+                }
 
                 request.setAttribute("pedido",
                         pedidoService.obtenerPedido(idPedido));
@@ -67,10 +78,9 @@ public class PedidoServlet extends HttpServlet {
                 return;
             }
 
-            // Aquí puedes agregar el listado de pedidos del cliente
-            // cuando el DAO tenga una consulta filtrada por id_cliente.
-            request.getRequestDispatcher(
-                    "/WEB-INF/views/pedidos/lista.jsp")
+            // P5 - Mis pedidos
+            request.setAttribute("pedidos", pedidoService.listarMisPedidos(cliente.getIdUsuario()));
+            request.getRequestDispatcher("/WEB-INF/views/pedidos/lista.jsp")
                     .forward(request, response);
 
         } catch (NumberFormatException e) {
@@ -83,78 +93,46 @@ public class PedidoServlet extends HttpServlet {
     @Override
     @SuppressWarnings("unchecked")
     protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response)
+            HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
+        Cliente cliente = obtenerCliente(request);
+        if (cliente == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        if (!"confirmar".equals(request.getParameter("accion"))) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "La acción solicitada no es válida.");
+            return;
+        }
+
         HttpSession session = request.getSession(false);
+        Object guardado = session.getAttribute("carrito");
 
-        if (session == null
-                || !(session.getAttribute("cliente") instanceof Cliente)) {
-            response.sendRedirect(
-                    request.getContextPath() + "/login");
+        if (!(guardado instanceof Carrito) || ((Carrito) guardado).isVacio()) {
+            response.sendRedirect(request.getContextPath() + "/carrito?error=vacio");
             return;
         }
 
-        Cliente cliente = (Cliente) session.getAttribute("cliente");
-        String accion = request.getParameter("accion");
-
-        if (!"confirmar".equals(accion)) {
-            response.sendError(
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    "La acción solicitada no es válida.");
-            return;
-        }
-
-        List<ItemCarrito> carrito =
-                (List<ItemCarrito>) session.getAttribute("carrito");
-
-        if (carrito == null || carrito.isEmpty()) {
-            response.sendRedirect(
-                    request.getContextPath() + "/carrito?error=vacio");
-            return;
-        }
+        Carrito carrito = (Carrito) guardado;
 
         try {
-            Pedido pedido = new Pedido();
-
-            pedido.setIdCliente(cliente.getIdCliente());
-            pedido.setTipoEntrega(
-                    request.getParameter("tipoEntrega"));
-            pedido.setDireccionEntrega(
-                    request.getParameter("direccionEntrega"));
-            pedido.setNotas(request.getParameter("notas"));
-
-            List<DetallePedido> detalles = new ArrayList<>();
-
-            for (ItemCarrito item : carrito) {
-                DetallePedido detalle = new DetallePedido();
-
-                detalle.setIdProducto(item.getIdProducto());
-                detalle.setCantidad(item.getCantidad());
-
-                // Solo para integrar el modelo actual.
-                // PedidoService debe obtener el precio confiable
-                // desde la base de datos antes de confirmar.
-                detalle.setPrecioUnitario(item.getPrecio());
-
-                detalles.add(detalle);
-            }
-
             Long idPedido = pedidoService.crearPedido(
-                    pedido,
-                    detalles,
-                    cliente.getIdUsuario()
-            );
+                    carrito,
+                    cliente.getIdUsuario(),
+                    request.getParameter("tipoEntrega"),
+                    request.getParameter("direccionEntrega"),
+                    request.getParameter("notas"));
 
+            // Solo se vacía si el pedido ya quedó guardado
             session.removeAttribute("carrito");
 
-            response.sendRedirect(
-                    request.getContextPath()
-                    + "/pedidos?accion=detalle&id=" + idPedido
-                    + "&exito=1");
-
+            response.sendRedirect(request.getContextPath()
+                    + "/pedidos?accion=detalle&id=" + idPedido + "&exito=1");
+            
         } catch (IllegalArgumentException e) {
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher(

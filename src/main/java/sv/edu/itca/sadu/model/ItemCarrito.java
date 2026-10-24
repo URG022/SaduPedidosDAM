@@ -1,9 +1,11 @@
 package sv.edu.itca.sadu.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class ItemCarrito {
+public class ItemCarrito implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private Long idProducto;
     private String nombre;
     private BigDecimal precio;

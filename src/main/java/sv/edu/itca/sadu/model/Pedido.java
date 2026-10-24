@@ -2,18 +2,27 @@ package sv.edu.itca.sadu.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Pedido {
 
+    private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     private Long idPedido;
     private Long idCliente;
-    private String tipoEntrega;
-    private String estado;
+    private TipoEntrega tipoEntrega;
+    private EstadoPedido estado;
     private String direccionEntrega;
     private String notas;
     private BigDecimal total;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
+
+    // Se llenan solo en la pantalla de detalle (P6)
+    private List<DetallePedido> detalles = new ArrayList<>();
+    private List<SeguimientoPedido> seguimientos = new ArrayList<>();
 
     public Pedido() {
     }
@@ -34,19 +43,19 @@ public class Pedido {
         this.idCliente = idCliente;
     }
 
-    public String getTipoEntrega() {
+    public TipoEntrega getTipoEntrega() {
         return tipoEntrega;
     }
 
-    public void setTipoEntrega(String tipoEntrega) {
+    public void setTipoEntrega(TipoEntrega tipoEntrega) {
         this.tipoEntrega = tipoEntrega;
     }
 
-    public String getEstado() {
+    public EstadoPedido getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoPedido estado) {
         this.estado = estado;
     }
 
@@ -88,5 +97,26 @@ public class Pedido {
 
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
         this.fechaActualizacion = fechaActualizacion;
+    }
+
+    public List<DetallePedido> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetallePedido> detalles) {
+        this.detalles = detalles;
+    }
+
+    public List<SeguimientoPedido> getSeguimientos() {
+        return seguimientos;
+    }
+
+    public void setSeguimientos(List<SeguimientoPedido> seguimientos) {
+        this.seguimientos = seguimientos;
+    }
+
+    /** En el JSP: ${pedido.fechaCreacionTexto} (fmt:formatDate no soporta LocalDateTime). */
+    public String getFechaCreacionTexto() {
+        return fechaCreacion == null ? "" : FORMATO.format(fechaCreacion);
     }
 }
