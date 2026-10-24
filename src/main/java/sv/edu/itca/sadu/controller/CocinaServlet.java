@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "CocinaServlet", urlPatterns = {"/cocina"})
+@WebServlet(name = "CocinaServlet", urlPatterns = {"/cocina", "/cocina/tablero"})
 public class CocinaServlet extends HttpServlet {
 
     private PedidoService pedidoService;
@@ -65,7 +65,8 @@ public class CocinaServlet extends HttpServlet {
         EstadoPedido estadoFiltro = null;
 
         if (filtro == null || filtro.trim().isEmpty()) {
-            pedidos = pedidoService.obtenerPedidosPorEstado(estadoFiltro);
+            // Carga todos los pedidos activos para distribuirlos en las columnas del Kanban
+            pedidos = pedidoService.obtenerTodosLosPedidos();
         } else if ("TODOS".equalsIgnoreCase(filtro.trim())) {
             pedidos = pedidoService.obtenerTodosLosPedidos();
         } else {

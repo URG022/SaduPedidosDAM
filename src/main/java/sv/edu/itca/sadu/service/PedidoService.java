@@ -329,4 +329,14 @@ public class PedidoService {
         }
         return cliente.getDireccion();
     }
+
+    // Reportes
+    public ReporteDTO obtenerMetricasDashboard(String fechaInicio, String fechaFin) {
+        try {
+            return ((PedidoDAOImpl) pedidoDAO).obtenerMetricasPorRango(fechaInicio, fechaFin);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ReporteDTO();
+        }
+    }
 }

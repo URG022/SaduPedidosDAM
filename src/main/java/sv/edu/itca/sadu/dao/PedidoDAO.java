@@ -5,6 +5,7 @@ import sv.edu.itca.sadu.model.EstadoPedido;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import sv.edu.itca.sadu.model.ReporteDTO;
 
 public interface PedidoDAO {
 
@@ -26,4 +27,6 @@ public interface PedidoDAO {
     boolean actualizarEstado(Long idPedido, EstadoPedido nuevoEstado, Connection con) throws SQLException;
 
     List<Pedido> obtenerActivos();
+    
+    ReporteDTO obtenerMetricasPorRango(String fechaInicio, String fechaFin) throws SQLException;
 }
