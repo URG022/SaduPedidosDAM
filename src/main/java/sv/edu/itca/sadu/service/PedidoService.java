@@ -1,24 +1,7 @@
 package sv.edu.itca.sadu.service;
 
-import sv.edu.itca.sadu.dao.ClienteDAO;
-import sv.edu.itca.sadu.dao.ClienteDAOImpl;
-import sv.edu.itca.sadu.dao.DetallePedidoDAO;
-import sv.edu.itca.sadu.dao.DetallePedidoDAOImpl;
-import sv.edu.itca.sadu.dao.PedidoDAO;
-import sv.edu.itca.sadu.dao.PedidoDAOImpl;
-import sv.edu.itca.sadu.dao.ProductoDAO;
-import sv.edu.itca.sadu.dao.ProductoDAOImpl;
-import sv.edu.itca.sadu.dao.SeguimientoPedidoDAO;
-import sv.edu.itca.sadu.dao.SeguimientoPedidoDAOImpl;
-import sv.edu.itca.sadu.model.Carrito;
-import sv.edu.itca.sadu.model.Cliente;
-import sv.edu.itca.sadu.model.DetallePedido;
-import sv.edu.itca.sadu.model.EstadoPedido;
-import sv.edu.itca.sadu.model.ItemCarrito;
-import sv.edu.itca.sadu.model.Pedido;
-import sv.edu.itca.sadu.model.Producto;
-import sv.edu.itca.sadu.model.SeguimientoPedido;
-import sv.edu.itca.sadu.model.TipoEntrega;
+import sv.edu.itca.sadu.dao.*;
+import sv.edu.itca.sadu.model.*;
 import sv.edu.itca.sadu.util.ConexionBD;
 
 import java.math.BigDecimal;
@@ -35,21 +18,23 @@ public class PedidoService {
     private final SeguimientoPedidoDAO seguimientoDAO;
     private final ProductoDAO productoDAO;
     private final ClienteDAO clienteDAO;
+    private final ComprobanteDAO comprobanteDAO;
 
     // Para usarlo directo desde los servlets: new PedidoService()
     public PedidoService() {
         this(new PedidoDAOImpl(), new DetallePedidoDAOImpl(), new SeguimientoPedidoDAOImpl(),
-                new ProductoDAOImpl(), new ClienteDAOImpl());
+                new ProductoDAOImpl(), new ClienteDAOImpl(), new ComprobanteDAOImpl());
     }
 
     public PedidoService(PedidoDAO pedidoDAO, DetallePedidoDAO detalleDAO,
             SeguimientoPedidoDAO seguimientoDAO, ProductoDAO productoDAO,
-            ClienteDAO clienteDAO) {
+            ClienteDAO clienteDAO, ComprobanteDAO comprobanteDAO) {
         this.pedidoDAO = pedidoDAO;
         this.detalleDAO = detalleDAO;
         this.seguimientoDAO = seguimientoDAO;
         this.productoDAO = productoDAO;
         this.clienteDAO = clienteDAO;
+        this.comprobanteDAO = comprobanteDAO;
     }
 
     // =====================================================================
@@ -158,6 +143,25 @@ public class PedidoService {
         }
     }
 
+    private MetodoPago parsearMetodoPago(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException("Selecciona el método de pago para entregar el pedido.");
+        }
+        try {
+            return MetodoPago.valueOf(texto.trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("El método de pago no es válido.");
+        }
+    }
+
+    /**
+     * P6: comprobante del pedido, o null si todavía no se emite.
+     */
+    public Comprobante obtenerComprobante(Long idPedido) {
+        validarIdPedido(idPedido);
+        return comprobanteDAO.buscarPorPedido(idPedido);
+    }
+
     private TipoEntrega parsearTipoEntrega(String texto) {
         if (texto == null || texto.trim().isEmpty()) {
             throw new IllegalArgumentException("Debes seleccionar el tipo de entrega.");
@@ -212,8 +216,11 @@ public class PedidoService {
     /**
      * Cambia el estado de un pedido y lo registra en su historial.
      */
+    // Al pasar a este estado se emite el comprobante
+    private static final EstadoPedido ESTADO_QUE_EMITE_COMPROBANTE = EstadoPedido.ENTREGADO;
+
     public boolean cambiarEstado(Long idPedido, EstadoPedido nuevoEstado,
-            String comentario, Long idUsuario) throws SQLException {
+            String comentario, Long idUsuario, String metodoPago) throws SQLException {
 
         validarIdPedido(idPedido);
 
@@ -231,6 +238,10 @@ public class PedidoService {
         if (actual.getEstado() == nuevoEstado) {
             throw new IllegalArgumentException("El pedido ya se encuentra en ese estado.");
         }
+
+        // El comprobante necesita el método de pago: se valida antes de abrir la transacción
+        boolean emiteComprobante = (nuevoEstado == ESTADO_QUE_EMITE_COMPROBANTE);
+        MetodoPago metodo = emiteComprobante ? parsearMetodoPago(metodoPago) : null;
 
         try (Connection con = ConexionBD.obtenerConexion()) {
 
@@ -250,6 +261,16 @@ public class PedidoService {
                 seguimiento.setComentario(comentario);
                 seguimiento.setIdUsuario(idUsuario);
                 seguimientoDAO.insertar(con, seguimiento);
+
+                // 3. Comprobante (solo al entregar)
+                if (emiteComprobante) {
+                    Comprobante comprobante = new Comprobante();
+                    comprobante.setIdPedido(idPedido);
+                    comprobante.setNumero(String.format("SADU-%06d", idPedido));
+                    comprobante.setMetodoPago(metodo);
+                    comprobante.setTotal(actual.getTotal());
+                    comprobanteDAO.insertar(con, comprobante);
+                }
 
                 con.commit();
                 return true;

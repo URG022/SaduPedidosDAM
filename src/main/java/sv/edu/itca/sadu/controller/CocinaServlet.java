@@ -129,9 +129,10 @@ public class CocinaServlet extends HttpServlet {
             Long idPedido = Long.parseLong(request.getParameter("idPedido"));
             EstadoPedido nuevoEstado = parsearEstado(request.getParameter("estado"));
             String comentario = request.getParameter("comentario");
+            String metodoPago = request.getParameter("metodoPago");
 
             boolean actualizado = pedidoService.cambiarEstado(
-                    idPedido, nuevoEstado, comentario, usuario.getIdUsuario());
+                    idPedido, nuevoEstado, comentario, usuario.getIdUsuario(), metodoPago);
 
             if (!actualizado) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "No se encontró el pedido.");

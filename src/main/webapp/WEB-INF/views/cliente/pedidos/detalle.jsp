@@ -120,7 +120,7 @@
                                 <dd><strong><c:out value="${comprobante.numero}"/></strong></dd>
 
                                 <dt>Método de pago</dt>
-                                <dd><c:out value="${comprobante.metodoPago}"/></dd>
+                                <dd><dd><c:out value="${comprobante.metodoPago.etiqueta}"/></dd></dd>
 
                                 <dt>Total pagado</dt>
                                 <dd>$<fmt:formatNumber value="${comprobante.total}" pattern="#,##0.00"/></dd>
