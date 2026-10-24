@@ -32,8 +32,8 @@ public class CocinaServlet extends HttpServlet {
      */
     private Usuario obtenerUsuario(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("usuario") instanceof Usuario) {
-            return (Usuario) session.getAttribute("usuario");
+        if (session != null && session.getAttribute("usuarioAutenticado") instanceof Usuario) {
+            return (Usuario) session.getAttribute("usuarioAutenticado");
         }
         return null;
     }

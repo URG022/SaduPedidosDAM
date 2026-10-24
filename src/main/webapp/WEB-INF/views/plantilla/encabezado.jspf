@@ -30,7 +30,7 @@
                     <a class="btn btn-sol btn-chico" href="${ctx}/registro">Crear cuenta</a>
                 </c:when>
                 <c:when test="${usuario.cliente}">
-                    <a class="nav-link ${seccion == 'pedidos' ? 'activo' : ''}" href="${ctx}/cliente/pedidos">Mis pedidos</a>
+                    <a class="nav-link ${seccion == 'pedidos' ? 'activo' : ''}" href="${ctx}/cliente/pedidos/lista">Mis pedidos</a>
                     <a class="nav-link ${seccion == 'perfil' ? 'activo' : ''}" href="${ctx}/cliente/perfil">Mi perfil</a>
                     <span class="saludo">Hola, <c:out value="${usuario.primerNombre}"/></span>
                     <a class="btn btn-sol btn-chico" href="${ctx}/cliente/carrito">Carrito</a>

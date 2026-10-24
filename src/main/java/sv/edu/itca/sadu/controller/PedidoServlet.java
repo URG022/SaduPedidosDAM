@@ -1,9 +1,9 @@
 package sv.edu.itca.sadu.controller;
 
-import sv.edu.itca.sadu.dao.PedidoDAO;
-import sv.edu.itca.sadu.dao.PedidoDAOImpl;
-import sv.edu.itca.sadu.model.*;
+import sv.edu.itca.sadu.model.Carrito;
 import sv.edu.itca.sadu.model.Pedido;
+import sv.edu.itca.sadu.model.TipoEntrega;
+import sv.edu.itca.sadu.model.Usuario;
 import sv.edu.itca.sadu.service.PedidoService;
 
 import javax.servlet.ServletException;
@@ -14,10 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-@WebServlet(name = "PedidoServlet", urlPatterns = {"/pedidos"})
+@WebServlet(name = "PedidoServlet", urlPatterns = {"/cliente/pedidos", "/cliente/pedidos/lista"})
 public class PedidoServlet extends HttpServlet {
 
     private PedidoService pedidoService;
@@ -28,23 +26,25 @@ public class PedidoServlet extends HttpServlet {
     }
 
     /**
-     * Cliente con sesión iniciada, o null si no hay.
+     * Usuario con sesión iniciada y rol CLIENTE, o null.
      */
-    private Cliente obtenerCliente(HttpServletRequest request) {
+    private Usuario obtenerCliente(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("cliente") instanceof Cliente) {
-            return (Cliente) session.getAttribute("cliente");
+        if (session != null && session.getAttribute("usuarioAutenticado") instanceof Usuario) {
+            Usuario usuario = (Usuario) session.getAttribute("usuarioAutenticado");
+            if ("CLIENTE".equals(usuario.getRol())) {
+                return usuario;
+            }
         }
         return null;
     }
 
     @Override
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Cliente cliente = obtenerCliente(request);
-        if (cliente == null) {
+        Usuario usuario = obtenerCliente(request);
+        if (usuario == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -52,54 +52,47 @@ public class PedidoServlet extends HttpServlet {
         String accion = request.getParameter("accion");
 
         try {
+            // P6 - Detalle del pedido
             if ("detalle".equals(accion)) {
-                Long idPedido = Long.parseLong(
-                        request.getParameter("id"));
+                Long idPedido = Long.parseLong(request.getParameter("id"));
 
                 // Devuelve null si no existe o si el pedido es de otro cliente
-                Pedido pedido = pedidoService.obtenerDetalleDeCliente(idPedido, cliente.getIdUsuario());
+                Pedido pedido = pedidoService.obtenerDetalleDeCliente(idPedido, usuario.getIdUsuario());
                 if (pedido == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND, "No encontramos ese pedido.");
                     return;
                 }
 
-                request.setAttribute("pedido",
-                        pedidoService.obtenerPedido(idPedido));
+                request.setAttribute("pedido", pedido);
+                request.setAttribute("detalles", pedido.getDetalles());
+                request.setAttribute("seguimiento", pedido.getSeguimientos());
 
-                request.setAttribute("detalles",
-                        pedidoService.obtenerDetalles(idPedido));
-
-                request.setAttribute("seguimiento",
-                        pedidoService.obtenerSeguimiento(idPedido));
-
-                request.getRequestDispatcher(
-                        "/WEB-INF/views/pedidos/detalle.jsp")
+                // Cuando Dev 4 entregue ComprobanteDAO, agrega aquí:
+                // request.setAttribute("comprobante", comprobanteDAO.buscarPorPedido(idPedido));
+                request.getRequestDispatcher("/WEB-INF/views/cliente/pedidos/detalle.jsp")
                         .forward(request, response);
                 return;
             }
 
             // P5 - Mis pedidos
-            request.setAttribute("pedidos", pedidoService.listarMisPedidos(cliente.getIdUsuario()));
-            request.getRequestDispatcher("/WEB-INF/views/pedidos/lista.jsp")
+            request.setAttribute("pedidos", pedidoService.listarMisPedidos(usuario.getIdUsuario()));
+            request.getRequestDispatcher("/WEB-INF/views/cliente/pedidos/lista.jsp")
                     .forward(request, response);
 
-        } catch (NumberFormatException e) {
-            response.sendError(
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    "El identificador del pedido no es válido.");
+        } catch (IllegalArgumentException e) {
+            // Incluye NumberFormatException (id ausente o no numérico)
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El identificador del pedido no es válido.");
         }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
-        Cliente cliente = obtenerCliente(request);
-        if (cliente == null) {
+        Usuario usuario = obtenerCliente(request);
+        if (usuario == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -122,7 +115,7 @@ public class PedidoServlet extends HttpServlet {
         try {
             Long idPedido = pedidoService.crearPedido(
                     carrito,
-                    cliente.getIdUsuario(),
+                    usuario.getIdUsuario(),
                     request.getParameter("tipoEntrega"),
                     request.getParameter("direccionEntrega"),
                     request.getParameter("notas"));
@@ -131,17 +124,17 @@ public class PedidoServlet extends HttpServlet {
             session.removeAttribute("carrito");
 
             response.sendRedirect(request.getContextPath()
-                    + "/pedidos?accion=detalle&id=" + idPedido + "&exito=1");
-            
+                    + "/cliente/pedidos?accion=detalle&id=" + idPedido + "&exito=1");
+
         } catch (IllegalArgumentException e) {
+            // Mensaje de validación: se muestra en el carrito sin perder lo escrito
             request.setAttribute("error", e.getMessage());
-            request.getRequestDispatcher(
-                    "/WEB-INF/views/carrito.jsp")
-                    .forward(request, response);
+            request.setAttribute("tiposEntrega", TipoEntrega.values());
+            request.setAttribute("direccionPerfil", pedidoService.obtenerDireccionPerfil(usuario.getIdUsuario()));
+            request.getRequestDispatcher("/WEB-INF/views/cliente/carrito.jsp").forward(request, response);
 
         } catch (Exception e) {
-            throw new ServletException(
-                    "No se pudo procesar el pedido.", e);
+            throw new ServletException("No se pudo procesar el pedido.", e);
         }
     }
 }

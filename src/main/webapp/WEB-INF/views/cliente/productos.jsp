@@ -8,7 +8,7 @@
 
 <main class="pagina">
     <div class="contenedor">
-        
+
         <!-- Cabecera y Buscador -->
         <div class="menu-cabecera">
             <div class="menu-titulo">
@@ -22,7 +22,7 @@
         </div>
 
         <!-- Filtros -->
-       <div class="menu-filtros" id="filtros-categoria">
+        <div class="menu-filtros" id="filtros-categoria">
             <button class="btn btn-azul btn-chico" data-cat="Todos">Todos</button>
             <button class="btn btn-borde btn-chico" data-cat="Desayunos">Desayunos</button>
             <button class="btn btn-borde btn-chico" data-cat="Platos fuertes">Platos fuertes</button>
@@ -52,22 +52,41 @@
                     <div class="platillo-foto" 
                          <c:if test="${not empty p.imagenUrl}">style="background-image: url('${ctx}/resources/img/${p.imagenUrl}')"</c:if>>
                         <c:if test="${empty p.imagenUrl}">[Foto]</c:if>
-                    </div>
-                    
-                    <div class="platillo-cuerpo">
-                        <span class="etiqueta" style="font-size: 11px;"><c:out value="${nombreCat}"/></span>
+                        </div>
+
+                        <div class="platillo-cuerpo">
+                            <span class="etiqueta" style="font-size: 11px;"><c:out value="${nombreCat}"/></span>
                         <h3><c:out value="${p.nombre}"/></h3>
                         <p class="texto-suave" style="flex: 1; font-size: 14px;"><c:out value="${p.descripcion}"/></p>
-                        
+
                         <div class="platillo-pie">
                             <span class="precio">$<fmt:formatNumber value="${p.precio}" pattern="#,##0.00"/></span>
-                            <button class="btn btn-sol btn-chico">Agregar</button>
+                            <c:choose>
+                                <%-- Platillo desactivado por el administrador --%>
+                                <c:when test="${not p.disponible}">
+                                    <button type="button" class="btn btn-borde btn-chico" disabled>Agotado</button>
+                                </c:when>
+
+                                <%-- Visitante sin sesión: lo mandamos a iniciar sesión --%>
+                                <c:when test="${usuario == null}">
+                                    <a class="btn btn-sol btn-chico" href="${ctx}/login">Agregar</a>
+                                </c:when>
+
+                                <%-- Cliente con sesión: agrega y va al carrito --%>
+                                <c:when test="${usuario.cliente}">
+                                    <form method="post" action="${ctx}/cliente/carrito" style="margin:0">
+                                        <input type="hidden" name="accion" value="agregar">
+                                        <input type="hidden" name="idProducto" value="${p.idProducto}">
+                                        <button type="submit" class="btn btn-sol btn-chico">Agregar</button>
+                                    </form>
+                                </c:when>
+                            </c:choose>
                         </div>
                     </div>
                 </article>
             </c:forEach>
         </div>
-        
+
     </div>
 </main>
 

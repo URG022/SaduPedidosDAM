@@ -2,11 +2,8 @@ package sv.edu.itca.sadu.controller;
 
 import sv.edu.itca.sadu.dao.ProductoDAO;
 import sv.edu.itca.sadu.dao.ProductoDAOImpl;
-import sv.edu.itca.sadu.model.Carrito;
-import sv.edu.itca.sadu.model.Cliente;
-import sv.edu.itca.sadu.model.ItemCarrito;
-import sv.edu.itca.sadu.model.Producto;
-import sv.edu.itca.sadu.model.TipoEntrega;
+import sv.edu.itca.sadu.model.*;
+import sv.edu.itca.sadu.service.PedidoService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,20 +14,45 @@ import javax.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-@WebServlet(name = "CarritoServlet", urlPatterns = {"/carrito"})
+@WebServlet(name = "CarritoServlet", urlPatterns = {"/cliente/carrito", "/carrito"})
 public class CarritoServlet extends HttpServlet {
 
-    private static final String VISTA = "/WEB-INF/views/carrito.jsp";
+    private static final String VISTA = "/WEB-INF/views/cliente/carrito.jsp";
     private static final String CARRITO = "carrito";
 
     private ProductoDAO productoDAO;
+    private PedidoService pedidoService;
 
     @Override
     public void init() throws ServletException {
         productoDAO = new ProductoDAOImpl();
+        pedidoService = new PedidoService();
     }
 
-    /** Devuelve el carrito de la sesión; si no existe (o es de una versión vieja), crea uno nuevo. */
+    /**
+     * Usuario con sesión iniciada y rol CLIENTE, o null.
+     */
+    private Usuario obtenerCliente(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+
+        HttpSession s = request.getSession(false);
+        Object o = (s == null) ? null : s.getAttribute("usuarioAutenticado");
+        System.out.println("[CARRITO] sesion=" + (s != null)
+                + " | usuarioAutenticado=" + (o == null ? "null" : o.getClass().getName()));
+
+        if (session != null && session.getAttribute("usuarioAutenticado") instanceof Usuario) {
+            Usuario usuario = (Usuario) session.getAttribute("usuarioAutenticado");
+            if ("CLIENTE".equals(usuario.getRol())) {
+                return usuario;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Devuelve el carrito de la sesión; si no existe (o es de una versión
+     * vieja), crea uno nuevo.
+     */
     private Carrito obtenerCarrito(HttpSession session) {
         Object guardado = session.getAttribute(CARRITO);
         if (guardado instanceof Carrito) {
@@ -41,22 +63,26 @@ public class CarritoServlet extends HttpServlet {
         return nuevo;
     }
 
-    private boolean haySesionCliente(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        return session != null && session.getAttribute("cliente") instanceof Cliente;
+    /**
+     * Datos que necesita carrito.jsp además del carrito.
+     */
+    private void prepararVista(HttpServletRequest request, Usuario usuario) {
+        request.setAttribute("tiposEntrega", TipoEntrega.values());
+        request.setAttribute("direccionPerfil", pedidoService.obtenerDireccionPerfil(usuario.getIdUsuario()));
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        if (!haySesionCliente(request)) {
+        Usuario usuario = obtenerCliente(request);
+        if (usuario == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
         obtenerCarrito(request.getSession());
-        request.setAttribute("tiposEntrega", TipoEntrega.values());
+        prepararVista(request, usuario);
         request.getRequestDispatcher(VISTA).forward(request, response);
     }
 
@@ -66,7 +92,8 @@ public class CarritoServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        if (!haySesionCliente(request)) {
+        Usuario usuario = obtenerCliente(request);
+        if (usuario == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -79,7 +106,6 @@ public class CarritoServlet extends HttpServlet {
 
                 Long idProducto = Long.parseLong(request.getParameter("idProducto"));
 
-                // La cantidad es opcional (el menú puede mandar solo el id)
                 int cantidad = 1;
                 String cantidadTexto = request.getParameter("cantidad");
                 if (cantidadTexto != null && !cantidadTexto.trim().isEmpty()) {
@@ -120,7 +146,7 @@ public class CarritoServlet extends HttpServlet {
 
         } catch (IllegalArgumentException e) {
             request.setAttribute("error", e.getMessage());
-            request.setAttribute("tiposEntrega", TipoEntrega.values());
+            prepararVista(request, usuario);
             request.getRequestDispatcher(VISTA).forward(request, response);
         }
     }

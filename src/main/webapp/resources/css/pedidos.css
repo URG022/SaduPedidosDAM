@@ -1,0 +1,172 @@
+/* =====================================================================
+   Sadu Pedidos — estilos de Dev 3 (carrito, mis pedidos, detalle)
+   Usa las variables de estilos.css. Aquí solo lo que no existe allí.
+   ===================================================================== */
+
+/* .campo { display:flex } anularía el atributo hidden, así que se fuerza */
+[hidden] {
+    display: none !important;
+}
+
+.form-inline {
+    margin: 0;
+    display: inline;
+}
+
+/* ---------- Carrito ---------- */
+.carrito-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.carrito-lista {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+    padding-bottom: 20px;
+}
+
+.carrito-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--sadu-arena);
+}
+.carrito-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.carrito-item-info h3 {
+    font-size: 18px;
+}
+
+.cantidad-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+.cantidad-control .cantidad {
+    min-width: 28px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 18px;
+}
+.btn-cantidad {
+    width: 36px;
+    padding: 0;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.carrito-subtotal {
+    min-width: 80px;
+    text-align: right;
+    font-size: 17px;
+}
+
+.carrito-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 20px;
+}
+
+.carrito-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 48px 24px;
+}
+
+/* Resumen lateral */
+.resumen {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 16px;
+}
+.resumen h2 {
+    font-size: 24px;
+    color: var(--sadu-azul-oscuro);
+}
+.resumen-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.resumen-total {
+    font-family: var(--fuente-titulo);
+    font-weight: 600;
+    font-size: 26px;
+    padding: 12px 0 16px;
+    border-top: 2px dashed var(--sadu-borde);
+}
+
+/* ---------- Tablet y celular ---------- */
+@media (max-width: 900px) {
+    .carrito-layout {
+        grid-template-columns: 1fr;
+    }
+    .resumen {
+        position: static;
+    }
+}
+@media (max-width: 640px) {
+    .carrito-item {
+        grid-template-columns: 1fr auto;
+        row-gap: 10px;
+    }
+    .carrito-subtotal {
+        text-align: left;
+    }
+}
+
+
+/* ---------- Mis pedidos ---------- */
+.pedidos-titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pedidos-vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 48px 24px;
+}
+
+.tabla .col-numero {
+    font-weight: 800;
+    white-space: nowrap;
+}
+.tabla .col-total  {
+    font-weight: 800;
+    white-space: nowrap;
+}
+.tabla .col-accion {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* En celular se oculta "Entrega" para que la tabla quepa; el detalle la muestra */
+@media (max-width: 640px) {
+    .tabla .col-entrega {
+        display: none;
+    }
+}
+
+.spacex {
+    margin-bottom: 1.5rem;
+}

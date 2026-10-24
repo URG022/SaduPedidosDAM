@@ -296,4 +296,16 @@ public class PedidoService {
             throw new IllegalArgumentException("El ID del pedido no es válido.");
         }
     }
+
+    /**
+     * Dirección guardada en el perfil del cliente, para sugerirla al pedir a
+     * domicilio.
+     */
+    public String obtenerDireccionPerfil(Long idUsuario) {
+        Cliente cliente = clienteDAO.obtenerPorIdUsuario(idUsuario);
+        if (cliente == null || cliente.getDireccion() == null) {
+            return "";
+        }
+        return cliente.getDireccion();
+    }
 }
