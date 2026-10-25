@@ -17,6 +17,7 @@ public class Pedido {
     private String direccionEntrega;
     private String notas;
     private BigDecimal total;
+        private String nombreCliente;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 
@@ -113,6 +114,14 @@ public class Pedido {
 
     public void setSeguimientos(List<SeguimientoPedido> seguimientos) {
         this.seguimientos = seguimientos;
+    }
+    
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
     }
 
     /** En el JSP: ${pedido.fechaCreacionTexto} (fmt:formatDate no soporta LocalDateTime). */

@@ -125,13 +125,19 @@ public class PedidoDAOImpl implements PedidoDAO {
     @Override
     public List<Pedido> obtenerTodos() {
         List<Pedido> lista = new ArrayList<>();
-        String sql = "SELECT id_pedido, id_cliente, tipo_entrega, estado, direccion_entrega, notas, total, "
-                + "fecha_creacion, fecha_actualizacion FROM pedidos "
-                + "ORDER BY fecha_creacion DESC, id_pedido DESC";
+        // JOIN con clientes y usuarios para mostrar el nombre del cliente en el tablero
+        String sql = "SELECT p.id_pedido, p.id_cliente, p.tipo_entrega, p.estado, p.direccion_entrega, p.notas, p.total, "
+                + "p.fecha_creacion, p.fecha_actualizacion, u.nombre_completo AS nombre_cliente "
+                + "FROM pedidos p "
+                + "JOIN clientes c ON c.id_cliente = p.id_cliente "
+                + "JOIN usuarios u ON u.id_usuario = c.id_usuario "
+                + "ORDER BY p.fecha_creacion DESC, p.id_pedido DESC";
 
         try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                lista.add(mapear(rs));
+                Pedido p = mapear(rs);
+                p.setNombreCliente(rs.getString("nombre_cliente"));
+                lista.add(p);
             }
         } catch (Exception e) {
             e.printStackTrace();

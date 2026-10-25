@@ -15,7 +15,7 @@
     <!-- Mensaje de error si la regla de negocio rechaza la transición -->
     <c:if test="${not empty error}">
         <div style="background: #FEE2E2; color: #991B1B; padding: 12px 16px; border-radius: 12px; font-weight: 700; border-left: 5px solid #EF4444;">
-            ${error}
+            <c:out value="${error}"/>
         </div>
     </c:if>
 
@@ -54,7 +54,9 @@
                                 <span>#${p.idPedido}</span>
                                 <span style="font-size: 12px; color: #64748B; font-weight: 600;">${p.fechaCreacionTexto}</span>
                             </div>
-                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">Cliente #${p.idCliente}</h4>
+                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">
+                                <c:out value="${not empty p.nombreCliente ? p.nombreCliente : 'Cliente #'.concat(p.idCliente)}"/>
+                            </h4>
                             <p style="font-size: 13px; color: #475569; margin: 0 0 12px 0; line-height: 1.4;">
                                 <c:forEach var="det" items="${p.detalles}" varStatus="status">
                                     ${det.cantidad} ${det.nombreProducto}${!status.last ? ', ' : ''}
@@ -62,7 +64,7 @@
                             </p>
                             <div style="margin-bottom: 14px;">
                                 <span style="background: #E0E7FF; color: #3730A3; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
-                                    ${p.tipoEntrega}
+                                    ${p.tipoEntrega.etiqueta}
                                 </span>
                             </div>
                             <form action="${ctx}/cocina" method="POST">
@@ -94,7 +96,9 @@
                                 <span>#${p.idPedido}</span>
                                 <span style="font-size: 12px; color: #64748B; font-weight: 600;">${p.fechaCreacionTexto}</span>
                             </div>
-                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">Cliente #${p.idCliente}</h4>
+                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">
+                                <c:out value="${not empty p.nombreCliente ? p.nombreCliente : 'Cliente #'.concat(p.idCliente)}"/>
+                            </h4>
                             <p style="font-size: 13px; color: #475569; margin: 0 0 12px 0; line-height: 1.4;">
                                 <c:forEach var="det" items="${p.detalles}" varStatus="status">
                                     ${det.cantidad} ${det.nombreProducto}${!status.last ? ', ' : ''}
@@ -102,7 +106,7 @@
                             </p>
                             <div style="margin-bottom: 14px;">
                                 <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
-                                    ${p.tipoEntrega}
+                                    ${p.tipoEntrega.etiqueta}
                                 </span>
                             </div>
                             <form action="${ctx}/cocina" method="POST">
@@ -134,7 +138,9 @@
                                 <span>#${p.idPedido}</span>
                                 <span style="font-size: 12px; color: #64748B; font-weight: 600;">${p.fechaCreacionTexto}</span>
                             </div>
-                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">Cliente #${p.idCliente}</h4>
+                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">
+                                <c:out value="${not empty p.nombreCliente ? p.nombreCliente : 'Cliente #'.concat(p.idCliente)}"/>
+                            </h4>
                             <p style="font-size: 13px; color: #475569; margin: 0 0 12px 0; line-height: 1.4;">
                                 <c:forEach var="det" items="${p.detalles}" varStatus="status">
                                     ${det.cantidad} ${det.nombreProducto}${!status.last ? ', ' : ''}
@@ -142,7 +148,7 @@
                             </p>
                             <div style="margin-bottom: 14px;">
                                 <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
-                                    ${p.tipoEntrega}
+                                    ${p.tipoEntrega.etiqueta}
                                 </span>
                             </div>
                             
@@ -197,14 +203,16 @@
                                 <span>#${p.idPedido}</span>
                                 <span style="font-size: 12px; color: #64748B; font-weight: 600;">${p.fechaCreacionTexto}</span>
                             </div>
-                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">Cliente #${p.idCliente}</h4>
+                            <h4 style="font-size: 15px; margin: 0 0 6px 0; font-weight: 700; color: #0F172A;">
+                                <c:out value="${not empty p.nombreCliente ? p.nombreCliente : 'Cliente #'.concat(p.idCliente)}"/>
+                            </h4>
                             <p style="font-size: 13px; color: #475569; margin: 0 0 12px 0; line-height: 1.4;">
                                 <c:forEach var="det" items="${p.detalles}" varStatus="status">
                                     ${det.cantidad} ${det.nombreProducto}${!status.last ? ', ' : ''}
                                 </c:forEach>
                             </p>
                             <div style="margin-bottom: 14px;">
-                                <span style="background: #E0F2FE; color: #0369A1; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">DOMICILIO</span>
+                                <span style="background: #E0F2FE; color: #0369A1; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">${p.tipoEntrega.etiqueta}</span>
                             </div>
                             
                             <c:choose>
