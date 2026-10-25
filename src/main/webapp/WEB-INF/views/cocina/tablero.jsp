@@ -156,9 +156,14 @@
                                             Enviar en camino
                                         </button>
                                     </c:when>
+                                    <c:when test="${not usuario.cocina}">
+                                        <!-- Solo cocina entrega y cobra; el admin solo observa -->
+                                        <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro en cocina</div>
+                                    </c:when>
                                     <c:otherwise>
                                         <input type="hidden" name="estado" value="ENTREGADO">
                                         <input type="hidden" name="comentario" value="Pedido entregado en local">
+                                        <span style="font-size: 12px; font-weight: 700; color: #475569;">Cobrado con:</span>
                                         <div style="display: flex; gap: 6px; margin-bottom: 10px;">
                                             <select name="metodoPago" class="campo" style="padding: 8px; font-size: 12px; border-radius: 8px; flex: 1; border: 1px solid #CBD5E1; font-weight: 600;" required>
                                                 <option value="EFECTIVO">Efectivo</option>
@@ -202,10 +207,17 @@
                                 <span style="background: #E0F2FE; color: #0369A1; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">DOMICILIO</span>
                             </div>
                             
+                            <c:choose>
+                            <c:when test="${not usuario.cocina}">
+                                <!-- Solo cocina entrega y cobra; el admin solo observa -->
+                                <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro en cocina</div>
+                            </c:when>
+                            <c:otherwise>
                             <form action="${ctx}/cocina" method="POST">
                                 <input type="hidden" name="idPedido" value="${p.idPedido}">
                                 <input type="hidden" name="estado" value="ENTREGADO">
                                 <input type="hidden" name="comentario" value="Pedido entregado a domicilio">
+                                <span style="font-size: 12px; font-weight: 700; color: #475569;">El repartidor cobró con:</span>
                                 <div style="display: flex; gap: 6px; margin-bottom: 10px;">
                                     <select name="metodoPago" class="campo" style="padding: 8px; font-size: 12px; border-radius: 8px; flex: 1; border: 1px solid #CBD5E1; font-weight: 600;" required>
                                         <option value="EFECTIVO">Efectivo</option>
@@ -216,6 +228,8 @@
                                     Confirmar entrega
                                 </button>
                             </form>
+                            </c:otherwise>
+                            </c:choose>
                         </div>
                     </c:if>
                 </c:forEach>

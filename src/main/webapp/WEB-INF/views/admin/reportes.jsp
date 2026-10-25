@@ -17,7 +17,7 @@
             <h1 style="font-size: 26px; margin: 0;">Reportes del Sistema</h1>
             <p class="texto-suave" style="margin: 4px 0 0">Analítica detallada de ventas por rango de fechas.</p>
         </div>
-        <button onclick="window.print()" class="boton boton-principal" style="border: none; cursor: pointer;">Descargar PDF / Imprimir</button>
+        <button type="button" onclick="window.print()" class="btn btn-sol">Descargar PDF / Imprimir</button>
     </div>
 
     <!-- Formulario de filtro por rango de fechas -->
@@ -32,7 +32,7 @@
                 <input type="date" name="fechaFin" class="campo" value="${param.fechaFin}">
             </div>
             <div>
-                <button type="submit" class="boton boton-principal" style="border: none; cursor: pointer; height: 42px;">Filtrar</button>
+                <button type="submit" class="btn btn-azul">Filtrar</button>
             </div>
         </form>
     </div>
@@ -73,7 +73,7 @@
             <div style="background: #FAF6F0; padding: 15px; border-radius: 12px; border-left: 4px solid #46528F;">
                 <span style="font-size: 12px; color: #666; font-weight: bold; text-transform: uppercase;">Ticket Promedio</span>
                 <h4 style="margin: 5px 0 0 0; font-size: 22px; color: #46528F;">
-                    <fmt:formatNumber value="${reporte.ticketPromedio}" type="currency" currencySymbol="$"/>
+                    $<fmt:formatNumber value="${reporte.ticketPromedio}" pattern="#,##0.00"/>
                 </h4>
             </div>
         </div>

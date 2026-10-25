@@ -48,7 +48,7 @@
                 </c:choose>
 
                 <!-- Agregamos data-categoria a la tarjeta -->
-                <article class="platillo" data-categoria="${nombreCat}">
+                <article class="platillo" id="p-${p.idProducto}" data-categoria="${nombreCat}">
                     <div class="platillo-foto" 
                          <c:if test="${not empty p.imagenUrl}">style="background-image: url('${ctx}/resources/img/${p.imagenUrl}')"</c:if>>
                         <c:if test="${empty p.imagenUrl}">[Foto]</c:if>
@@ -77,6 +77,7 @@
                                     <form method="post" action="${ctx}/cliente/carrito" style="margin:0">
                                         <input type="hidden" name="accion" value="agregar">
                                         <input type="hidden" name="idProducto" value="${p.idProducto}">
+                                        <input type="hidden" name="volver" value="menu">
                                         <button type="submit" class="btn btn-sol btn-chico">Agregar</button>
                                     </form>
                                 </c:when>
@@ -90,5 +91,23 @@
     </div>
 </main>
 
+<%-- Aviso "agregado al carrito": se muestra una sola vez y se borra de la sesión --%>
+<c:if test="${not empty sessionScope.avisoCarrito}">
+    <div id="aviso-carrito" class="alerta alerta-exito"
+         style="position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; align-items: center; gap: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.15);">
+        <span>✓ <c:out value="${sessionScope.avisoCarrito}"/> se agregó al carrito
+            (${sessionScope.carrito.cantidadTotal} en total)</span>
+        <a class="btn btn-sol btn-chico" href="${ctx}/carrito">Ver carrito</a>
+    </div>
+    <c:remove var="avisoCarrito" scope="session"/>
+    <script>
+        setTimeout(function () {
+            var a = document.getElementById('aviso-carrito');
+            if (a) {
+                a.style.display = 'none';
+            }
+        }, 4000);
+    </script>
+</c:if>
 <script src="${ctx}/resources/js/menu.js"></script>
 <%@ include file="/WEB-INF/views/plantilla/pie.jspf" %>

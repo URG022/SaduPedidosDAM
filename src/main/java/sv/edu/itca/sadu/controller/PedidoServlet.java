@@ -5,6 +5,7 @@ import sv.edu.itca.sadu.model.Pedido;
 import sv.edu.itca.sadu.model.TipoEntrega;
 import sv.edu.itca.sadu.model.Usuario;
 import sv.edu.itca.sadu.service.PedidoService;
+import sv.edu.itca.sadu.model.Comprobante;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -70,6 +71,31 @@ public class PedidoServlet extends HttpServlet {
                 // Cuando Dev 4 entregue ComprobanteDAO, agrega aquí:
                 request.setAttribute("comprobante", pedidoService.obtenerComprobante(idPedido));
                 request.getRequestDispatcher("/WEB-INF/views/cliente/pedidos/detalle.jsp")
+                        .forward(request, response);
+                return;
+            }
+
+            // P6 - Comprobante imprimible (solo si el pedido ya fue entregado)
+            if ("comprobante".equals(accion)) {
+                Long idPedido = Long.parseLong(request.getParameter("id"));
+
+                Pedido pedido = pedidoService.obtenerDetalleDeCliente(idPedido, usuario.getIdUsuario());
+                if (pedido == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "No encontramos ese pedido.");
+                    return;
+                }
+                Comprobante comprobante = pedidoService.obtenerComprobante(idPedido);
+                if (comprobante == null) {
+                    response.sendRedirect(request.getContextPath()
+                            + "/cliente/pedidos?accion=detalle&id=" + idPedido);
+                    return;
+                }
+
+                request.setAttribute("pedido", pedido);
+                request.setAttribute("detalles", pedido.getDetalles());
+                request.setAttribute("comprobante", comprobante);
+                request.setAttribute("cliente", usuario);
+                request.getRequestDispatcher("/WEB-INF/views/cliente/pedidos/comprobante.jsp")
                         .forward(request, response);
                 return;
             }

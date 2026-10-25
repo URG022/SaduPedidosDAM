@@ -122,6 +122,13 @@ public class CarritoServlet extends HttpServlet {
                 }
 
                 carrito.agregar(new ItemCarrito(p.getIdProducto(), p.getNombre(), p.getPrecio(), cantidad));
+                
+                // Si se agregó desde el menú, regresamos al menú con un aviso
+                if ("menu".equals(request.getParameter("volver"))) {
+                    request.getSession().setAttribute("avisoCarrito", p.getNombre());
+                    response.sendRedirect(request.getContextPath() + "/cliente/productos#p-" + p.getIdProducto());
+                    return;
+                }
 
             } else if ("sumar".equals(accion)) {
                 carrito.sumar(Long.parseLong(request.getParameter("idProducto")));

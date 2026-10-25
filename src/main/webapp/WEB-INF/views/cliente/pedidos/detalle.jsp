@@ -125,6 +125,8 @@
                                 <dt>Total pagado</dt>
                                 <dd>$<fmt:formatNumber value="${comprobante.total}" pattern="#,##0.00"/></dd>
                             </dl>
+                            <a class="btn btn-sol btn-bloque" target="_blank"
+                               href="${ctx}/cliente/pedidos?accion=comprobante&id=${pedido.idPedido}">Ver y descargar comprobante</a>
                         </c:when>
                         <c:otherwise>
                             <p class="texto-suave">
