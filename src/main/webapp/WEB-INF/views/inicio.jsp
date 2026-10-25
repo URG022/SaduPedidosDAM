@@ -17,7 +17,7 @@
                 <h1>Tu comida favorita, del sol de Sadu a tu mesa</h1>
                 <p>Arma tu pedido, elige si lo comes aquí, lo llevas o te lo enviamos, y sigue cada paso desde la cocina hasta tu mesa.</p>
                 <div class="hero-botones">
-                    <a class="btn btn-sol btn-grande" href="${ctx}/menu">Ordenar ahora</a>
+                    <a class="btn btn-sol btn-grande" href="${ctx}/cliente/productos">Ordenar ahora</a>
                     <a class="btn btn-azul btn-grande" href="${ctx}/cliente/productos">Ver menú</a>
                 </div>
             </div>

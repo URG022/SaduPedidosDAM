@@ -68,7 +68,7 @@ public class PedidoServlet extends HttpServlet {
                 request.setAttribute("seguimiento", pedido.getSeguimientos());
 
                 // Cuando Dev 4 entregue ComprobanteDAO, agrega aquí:
-                request.setAttribute("comprobanteDAOante", pedidoService.obtenerComprobante(idPedido));
+                request.setAttribute("comprobante", pedidoService.obtenerComprobante(idPedido));
                 request.getRequestDispatcher("/WEB-INF/views/cliente/pedidos/detalle.jsp")
                         .forward(request, response);
                 return;

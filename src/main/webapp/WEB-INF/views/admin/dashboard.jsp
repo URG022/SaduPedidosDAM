@@ -30,7 +30,7 @@
         <div class="tarjeta">
             <span class="texto-suave" style="font-size: 13px; font-weight: 700;">TICKET PROMEDIO</span>
             <h3 style="font-size: 28px; margin: 6px 0;">
-                <fmt:formatNumber value="${reporte.ticketPromedio}" type="currency" currencySymbol="$"/>
+                $<fmt:formatNumber value="${reporte.ticketPromedio}" pattern="#,##0.00"/>
             </h3>
             <span class="texto-suave" style="font-size: 12px;">por pedido entregado</span>
         </div>

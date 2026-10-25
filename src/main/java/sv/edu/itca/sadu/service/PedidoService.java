@@ -238,6 +238,11 @@ public class PedidoService {
         if (actual.getEstado() == nuevoEstado) {
             throw new IllegalArgumentException("El pedido ya se encuentra en ese estado.");
         }
+        
+        if (!transicionValida(actual.getEstado(), nuevoEstado)) {
+            throw new IllegalArgumentException("No se puede pasar de " + actual.getEstado()
+                    + " a " + nuevoEstado + ".");
+        }
 
         // El comprobante necesita el método de pago: se valida antes de abrir la transacción
         boolean emiteComprobante = (nuevoEstado == ESTADO_QUE_EMITE_COMPROBANTE);
@@ -337,6 +342,17 @@ public class PedidoService {
         } catch (Exception e) {
             e.printStackTrace();
             return new ReporteDTO();
+        }
+    }
+    
+        /** Orden permitido: RECIBIDO > EN_PREPARACION > LISTO > (EN_CAMINO) > ENTREGADO. */
+    private boolean transicionValida(EstadoPedido de, EstadoPedido a) {
+        switch (de) {
+            case RECIBIDO:       return a == EstadoPedido.EN_PREPARACION || a == EstadoPedido.CANCELADO;
+            case EN_PREPARACION: return a == EstadoPedido.LISTO;
+            case LISTO:          return a == EstadoPedido.EN_CAMINO || a == EstadoPedido.ENTREGADO;
+            case EN_CAMINO:      return a == EstadoPedido.ENTREGADO;
+            default:             return false;
         }
     }
 }
