@@ -32,4 +32,8 @@ public class ServicioCliente {
     public boolean activarCuenta(Long idUsuario) {
         return clienteDAO.activarCuenta(idUsuario);
     }
+    
+    public boolean actualizarClave(Long idUsuario, String hashClave) {
+        return clienteDAO.actualizarClave(idUsuario, hashClave);
+    }
 }

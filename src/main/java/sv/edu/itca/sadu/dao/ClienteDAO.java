@@ -16,4 +16,7 @@ public interface ClienteDAO {
     boolean desactivarCuenta(Long idUsuario);
     boolean activarCuenta(Long idUsuario);
     
+    //Actualizar contraseña
+    boolean actualizarClave(Long idUsuario, String hashClave);
+    
 }

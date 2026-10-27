@@ -46,6 +46,21 @@
                     <textarea id="direccion" name="direccion" rows="3" maxlength="200" placeholder="Ej. Colonia Escalón, Calle Principal, Casa #123...">${perfil.direccion}</textarea>
                 </div>
 
+                     <!-- Sección de seguridad -->
+                <hr style="margin: 30px 0 20px; border: 0; border-top: 1px solid #e0e0e0;">
+                <h3 style="margin-bottom: 5px;">Seguridad</h3>
+                <p class="texto-suave" style="font-size: 0.9em; margin-bottom: 20px;">Deja estos campos en blanco si no deseas cambiar tu contraseña.</p>
+
+                <div class="campo">
+                    <label for="nuevaClave">Nueva Contraseña</label>
+                    <input type="password" id="nuevaClave" name="nuevaClave" placeholder="Ingresa una nueva contraseña (opcional)">
+                </div>
+
+                <div class="campo">
+                    <label for="confirmarClave">Confirmar Nueva Contraseña</label>
+                    <input type="password" id="confirmarClave" name="confirmarClave" placeholder="Repite la nueva contraseña">
+                </div>
+                
                 <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
                     <button type="submit" class="btn btn-sol btn-grande">Guardar Cambios</button>
                     <!-- Botón para abrir modal de desactivación -->

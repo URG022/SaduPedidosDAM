@@ -130,4 +130,19 @@ public class ClienteDAOImpl implements ClienteDAO {
         }
         return false;
     }
+    
+    //Actualización de contraseña
+    @Override
+    public boolean actualizarClave(Long idUsuario, String hashClave) {
+        String sql = "UPDATE usuarios SET hash_clave = ? WHERE id_usuario = ?";
+        try (Connection con = ConexionBD.obtenerConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, hashClave);
+            ps.setLong(2, idUsuario);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
