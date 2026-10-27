@@ -26,36 +26,67 @@ public class AdminClienteServlet extends HttpServlet {
             throws ServletException, IOException {
         
         String accion = request.getParameter("accion");
+        if (accion == null) {
+            accion = "listar";
+        }
 
         try {
-            if ("desactivar".equals(accion)) {
-                // Acción: Desactivar cuenta
-                Long idDesactivar = Long.parseLong(request.getParameter("id"));
-                servicioCliente.desactivarCuenta(idDesactivar);
-                response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=1");
-                return;
+            switch (accion) {
+                case "editar":
+                    Long idEditar = Long.parseLong(request.getParameter("id"));
+                    Cliente cEditar = servicioCliente.obtenerPerfil(idEditar);
+                    request.setAttribute("cliente", cEditar);
+                    request.getRequestDispatcher("/WEB-INF/views/admin/form_cliente.jsp").forward(request, response);
+                    break;
+                case "desactivar":
+                    Long idDesactivar = Long.parseLong(request.getParameter("id"));
+                    servicioCliente.desactivarCuenta(idDesactivar);
+                    response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=1");
+                    break;
+                case "activar":
+                    Long idActivar = Long.parseLong(request.getParameter("id"));
+                    servicioCliente.activarCuenta(idActivar);
+                    response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=2");
+                    break;
+                default:
+                    List<Cliente> lista = servicioCliente.obtenerTodosLosClientes();
+                    request.setAttribute("clientes", lista);
+                    request.getRequestDispatcher("/WEB-INF/views/admin/clientes.jsp").forward(request, response);
+                    break;
             }
-            
-            if ("activar".equals(accion)) {
-                // Acción: Reactivar cuenta
-                Long idActivar = Long.parseLong(request.getParameter("id"));
-                servicioCliente.activarCuenta(idActivar);
-                response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=2");
-                return;
-            }
-
-            // Acción por defecto: Listar todos los clientes
-            List<Cliente> lista = servicioCliente.obtenerTodosLosClientes();
-            request.setAttribute("clientes", lista);
-            request.getRequestDispatcher("/WEB-INF/views/admin/clientes.jsp").forward(request, response);
-
         } catch (Exception e) {
             request.setAttribute("error", "Error procesando la solicitud: " + e.getMessage());
-            
-            // Recargar la lista en caso de error
             List<Cliente> lista = servicioCliente.obtenerTodosLosClientes();
             request.setAttribute("clientes", lista);
             request.getRequestDispatcher("/WEB-INF/views/admin/clientes.jsp").forward(request, response);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        request.setCharacterEncoding("UTF-8");
+
+        try {
+            Cliente c = new Cliente();
+            c.setIdUsuario(Long.parseLong(request.getParameter("idUsuario")));
+            c.setNombreCompleto(request.getParameter("nombreCompleto"));
+            c.setCorreo(request.getParameter("correo"));
+            c.setTelefono(request.getParameter("telefono"));
+            c.setDireccion(request.getParameter("direccion"));
+            boolean exito = servicioCliente.actualizarPerfil(c);
+
+            if (exito) {
+                response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=3");
+            } else {
+                request.setAttribute("error", "No se pudo actualizar la información del cliente.");
+                request.setAttribute("cliente", c);
+                request.getRequestDispatcher("/WEB-INF/views/admin/form_cliente.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            request.setAttribute("error", "Error al procesar los datos: " + e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/views/admin/form_cliente.jsp").forward(request, response);
         }
     }
 }

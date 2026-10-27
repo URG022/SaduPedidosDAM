@@ -25,6 +25,9 @@
         <c:if test="${param.exito == '2'}">
             <p class="alerta alerta-exito">La cuenta ha sido reactivada con éxito.</p>
         </c:if>
+            <c:if test="${param.exito == '3'}">
+            <p class="alerta alerta-exito">La información del cliente ha sido actualizada con éxito.</p>
+        </c:if>
 
         <!-- Tabla de Datos -->
         <div class="tabla-caja">
@@ -70,17 +73,19 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${c.activo}">
-                                                <!-- Botón para abrir el modal de desactivar -->
-                                                <button onclick="confirmarDesactivacion(${c.idUsuario})" class="btn btn-peligro btn-chico">Desactivar</button>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <!-- Botón para abrir el modal de activar -->
-                                                <button onclick="confirmarActivacion(${c.idUsuario})" class="btn btn-verde-suave btn-chico">Activar</button>
-                                            </c:otherwise>
-                                        </c:choose>
+                                   <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a href="${ctx}/admin/clientes?accion=editar&id=${c.idUsuario}" class="btn btn-borde btn-chico">Editar</a>
+                                            
+                                            <c:choose>
+                                                <c:when test="${c.activo}">
+                                                    <button onclick="confirmarDesactivacion(${c.idUsuario})" class="btn btn-peligro btn-chico">Desactivar</button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <button onclick="confirmarActivacion(${c.idUsuario})" class="btn btn-verde-suave btn-chico">Activar</button>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
                                     </td>
                                 </tr>
                             </c:forEach>
