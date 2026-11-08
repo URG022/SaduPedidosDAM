@@ -102,6 +102,7 @@ public class AdminProductoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        cargarCategorias(request);
 
         request.setCharacterEncoding("UTF-8");
 

@@ -81,12 +81,21 @@ public class AdminClienteServlet extends HttpServlet {
             c.setCorreo(request.getParameter("correo"));
             c.setTelefono(request.getParameter("telefono"));
             c.setDireccion(request.getParameter("direccion"));
+
+            // Mismas reglas que el perfil del cliente
+            java.util.List<String> errores = servicioCliente.validarPerfil(c);
+            if (!errores.isEmpty()) {
+                request.setAttribute("error", String.join(" ", errores));
+                request.setAttribute("cliente", c);
+                request.getRequestDispatcher("/WEB-INF/views/admin/form_cliente.jsp").forward(request, response);
+                return;
+            }
             boolean exito = servicioCliente.actualizarPerfil(c);
 
             if (exito) {
                 response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=3");
             } else {
-                request.setAttribute("error", "No se pudo actualizar la información del cliente.");
+                request.setAttribute("error", "No se pudo actualizar: el cliente no existe o el correo ya está registrado en otra cuenta.");
                 request.setAttribute("cliente", c);
                 request.getRequestDispatcher("/WEB-INF/views/admin/form_cliente.jsp").forward(request, response);
             }

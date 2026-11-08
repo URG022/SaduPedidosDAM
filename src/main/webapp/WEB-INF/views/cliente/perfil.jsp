@@ -19,8 +19,19 @@
         <c:if test="${not empty error}">
             <p class="alerta alerta-error" style="width: 100%; max-width: 600px; margin-bottom: 20px;"><c:out value="${error}"/></p>
         </c:if>
-        <c:if test="${not empty param.exito}">
+        <c:if test="${not empty errores}">
+            <div class="alerta alerta-error" style="width: 100%; max-width: 600px; margin-bottom: 20px;">
+                Revisa estos datos:
+                <ul style="margin: 6px 0 0 18px; padding: 0;">
+                    <c:forEach var="e" items="${errores}"><li><c:out value="${e}"/></li></c:forEach>
+                </ul>
+            </div>
+        </c:if>
+        <c:if test="${param.exito == '1'}">
             <p class="alerta alerta-exito" style="width: 100%; max-width: 600px; margin-bottom: 20px;">Tu perfil ha sido actualizado con éxito.</p>
+        </c:if>
+        <c:if test="${param.exito == 'clave'}">
+            <p class="alerta alerta-exito" style="width: 100%; max-width: 600px; margin-bottom: 20px;">Tu perfil y tu contraseña se actualizaron con éxito.</p>
         </c:if>
 
         <!-- Formulario -->
@@ -47,14 +58,19 @@
                     <textarea id="direccion" name="direccion" rows="3" maxlength="200" placeholder="Ej. Colonia Escalón, Calle Principal, Casa #123...">${fn:escapeXml(perfil.direccion)}</textarea>
                 </div>
 
-                     <!-- Sección de seguridad -->
+                <!-- Sección de seguridad -->
                 <hr style="margin: 30px 0 20px; border: 0; border-top: 1px solid #e0e0e0;">
                 <h3 style="margin-bottom: 5px;">Seguridad</h3>
                 <p class="texto-suave" style="font-size: 0.9em; margin-bottom: 20px;">Deja estos campos en blanco si no deseas cambiar tu contraseña.</p>
 
                 <div class="campo">
+                    <label for="claveActual">Contraseña Actual</label>
+                    <input type="password" id="claveActual" name="claveActual" autocomplete="current-password" placeholder="Solo si vas a cambiar tu contraseña">
+                </div>
+
+                <div class="campo">
                     <label for="nuevaClave">Nueva Contraseña</label>
-                    <input type="password" id="nuevaClave" name="nuevaClave" placeholder="Ingresa una nueva contraseña (opcional)">
+                    <input type="password" id="nuevaClave" name="nuevaClave" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres y un número">
                 </div>
 
                 <div class="campo">
