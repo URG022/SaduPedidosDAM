@@ -13,13 +13,12 @@ public class ClienteDAOImpl implements ClienteDAO {
     @Override
     public Cliente obtenerPorIdUsuario(Long idUsuario) {
         Cliente c = null;
-        String sql = "SELECT u.id_usuario, u.nombre_completo, u.correo, u.rol, u.activo AS u_activo, " +
-                     "c.id_cliente, c.telefono, c.direccion, c.activo AS c_activo " +
-                     "FROM usuarios u INNER JOIN clientes c ON u.id_usuario = c.id_usuario " +
-                     "WHERE u.id_usuario = ?";
-        
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT u.id_usuario, u.nombre_completo, u.correo, u.rol, u.activo AS u_activo, "
+                + "c.id_cliente, c.telefono, c.direccion, c.activo AS c_activo "
+                + "FROM usuarios u INNER JOIN clientes c ON u.id_usuario = c.id_usuario "
+                + "WHERE u.id_usuario = ?";
+
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setLong(1, idUsuario);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -44,26 +43,28 @@ public class ClienteDAOImpl implements ClienteDAO {
     @Override
     public boolean actualizarPerfil(Cliente cliente) {
         // Actualiza ambas tablas
-        String sqlUsuario = "UPDATE usuarios SET nombre_completo = ?, correo = ? WHERE id_usuario = ?";
+        String sqlUsuario = "UPDATE usuarios SET nombre_completo = ?, correo = ? WHERE id_usuario = ? AND rol = 'CLIENTE'";
         String sqlCliente = "UPDATE clientes SET telefono = ?, direccion = ? WHERE id_usuario = ?";
         boolean exito = false;
-        
+
         try (Connection con = ConexionBD.obtenerConexion()) {
             con.setAutoCommit(false); //Transacción para consistencia
-            
-            try (PreparedStatement psU = con.prepareStatement(sqlUsuario);
-                 PreparedStatement psC = con.prepareStatement(sqlCliente)) {
-                
+
+            try (PreparedStatement psU = con.prepareStatement(sqlUsuario); PreparedStatement psC = con.prepareStatement(sqlCliente)) {
+
                 psU.setString(1, cliente.getNombreCompleto());
                 psU.setString(2, cliente.getCorreo());
                 psU.setLong(3, cliente.getIdUsuario());
-                psU.executeUpdate();
-                
+                if (psU.executeUpdate() == 0) {
+                    con.rollback();
+                    return false;
+                }
+
                 psC.setString(1, cliente.getTelefono());
                 psC.setString(2, cliente.getDireccion());
                 psC.setLong(3, cliente.getIdUsuario());
                 psC.executeUpdate();
-                
+
                 con.commit();
                 exito = true;
             } catch (Exception e) {
@@ -79,15 +80,13 @@ public class ClienteDAOImpl implements ClienteDAO {
     @Override
     public List<Cliente> obtenerTodosLosClientes() {
         List<Cliente> lista = new ArrayList<>();
-        String sql = "SELECT u.id_usuario, u.nombre_completo, u.correo, u.activo AS u_activo, " +
-                     "c.id_cliente, c.telefono, c.direccion " +
-                     "FROM usuarios u INNER JOIN clientes c ON u.id_usuario = c.id_usuario " +
-                     "WHERE u.rol = 'CLIENTE' ORDER BY u.id_usuario ASC";
-                     
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            
+        String sql = "SELECT u.id_usuario, u.nombre_completo, u.correo, u.activo AS u_activo, "
+                + "c.id_cliente, c.telefono, c.direccion "
+                + "FROM usuarios u INNER JOIN clientes c ON u.id_usuario = c.id_usuario "
+                + "WHERE u.rol = 'CLIENTE' ORDER BY u.id_usuario ASC";
+
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
                 Cliente c = new Cliente();
                 c.setIdUsuario(rs.getLong("id_usuario"));
@@ -107,9 +106,8 @@ public class ClienteDAOImpl implements ClienteDAO {
 
     @Override
     public boolean desactivarCuenta(Long idUsuario) {
-        String sql = "UPDATE usuarios SET activo = 0 WHERE id_usuario = ?";
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "UPDATE usuarios SET activo = 0 WHERE id_usuario = ? AND rol = 'CLIENTE'";
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setLong(1, idUsuario);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -117,12 +115,11 @@ public class ClienteDAOImpl implements ClienteDAO {
         }
         return false;
     }
-    
+
     @Override
     public boolean activarCuenta(Long idUsuario) {
-        String sql = "UPDATE usuarios SET activo = 1 WHERE id_usuario = ?";
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "UPDATE usuarios SET activo = 1 WHERE id_usuario = ? AND rol = 'CLIENTE'";
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setLong(1, idUsuario);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -130,13 +127,12 @@ public class ClienteDAOImpl implements ClienteDAO {
         }
         return false;
     }
-    
+
     //Actualización de contraseña
     @Override
     public boolean actualizarClave(Long idUsuario, String hashClave) {
         String sql = "UPDATE usuarios SET hash_clave = ? WHERE id_usuario = ?";
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, hashClave);
             ps.setLong(2, idUsuario);
             return ps.executeUpdate() > 0;

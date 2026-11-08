@@ -277,8 +277,68 @@ public class PedidoDAOImpl implements PedidoDAO {
                 }
             }
             dto.setPedidosPorEstado(estados);
-            dto.setHoraPico("12:00 p. m.");
+            dto.setHoraPico(calcularHoraPico(con, filtrarFechas, fechaInicio, fechaFin));
+            dto.setVentasPorDia(calcularVentasPorDia(con, filtrarFechas, fechaInicio, fechaFin));
         }
         return dto;
+    }
+
+    /**
+     * Hora del día con más pedidos (sin contar cancelados). Devuelve, por
+     * ejemplo, "12:00 p. m." o "Sin datos" si no hay pedidos en el rango.
+     */
+    private String calcularHoraPico(Connection con, boolean filtrarFechas,
+            String fechaInicio, String fechaFin) throws SQLException {
+        String sql = "SELECT HOUR(fecha_creacion) AS hora, COUNT(*) AS cant FROM pedidos "
+                + "WHERE estado <> 'CANCELADO' ";
+        if (filtrarFechas) {
+            sql += "AND DATE(fecha_creacion) BETWEEN ? AND ? ";
+        }
+        sql += "GROUP BY HOUR(fecha_creacion) ORDER BY cant DESC, hora ASC LIMIT 1";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            if (filtrarFechas) {
+                ps.setString(1, fechaInicio);
+                ps.setString(2, fechaFin);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int hora = rs.getInt("hora");                 // 0 a 23
+                    int hora12 = (hora % 12 == 0) ? 12 : hora % 12;
+                    String sufijo = (hora < 12) ? "a. m." : "p. m.";
+                    return hora12 + ":00 " + sufijo;
+                }
+            }
+        }
+        return "Sin datos";
+    }
+
+    /**
+     * Total vendido (pedidos entregados) por cada día del rango. Sin rango de
+     * fechas devuelve los últimos 31 días con ventas. Ordenado del más reciente
+     * al más antiguo.
+     */
+    private java.util.Map<String, Double> calcularVentasPorDia(Connection con, boolean filtrarFechas,
+            String fechaInicio, String fechaFin) throws SQLException {
+        String sql = "SELECT DATE(fecha_creacion) AS dia, SUM(total) AS ventas FROM pedidos "
+                + "WHERE estado = 'ENTREGADO' ";
+        if (filtrarFechas) {
+            sql += "AND DATE(fecha_creacion) BETWEEN ? AND ? ";
+        }
+        sql += "GROUP BY DATE(fecha_creacion) ORDER BY dia DESC LIMIT 31";
+
+        java.util.Map<String, Double> ventas = new java.util.LinkedHashMap<>();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            if (filtrarFechas) {
+                ps.setString(1, fechaInicio);
+                ps.setString(2, fechaFin);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ventas.put(rs.getString("dia"), rs.getDouble("ventas"));
+                }
+            }
+        }
+        return ventas;
     }
 }

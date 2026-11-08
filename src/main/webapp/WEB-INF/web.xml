@@ -5,6 +5,12 @@
          version="4.0">
 
     <display-name>Sadu Pedidos</display-name>
+    
+    <!-- Formato de números y montos ($1,234.56) para todo el sitio, sin depender del idioma del navegador -->
+    <context-param>
+        <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
+        <param-value>en_US</param-value>
+    </context-param>
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

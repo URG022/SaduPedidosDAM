@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="titulo" value="Administración de Menú"/>
 <c:set var="seccion" value="productos"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado-admin.jspf" %>
@@ -26,7 +27,7 @@
                 <div class="fila-2">
                     <div class="campo">
                         <label for="nombre">Nombre del Platillo</label>
-                        <input type="text" id="nombre" name="nombre" value="${producto.nombre}" required maxlength="100">
+                        <input type="text" id="nombre" name="nombre" value="${fn:escapeXml(producto.nombre)}" required maxlength="100">
                     </div>
                     <div class="campo">
                         <label for="idCategoria">Categoría</label>
@@ -47,13 +48,13 @@
                     </div>
                     <div class="campo">
                         <label for="imagenUrl">Nombre de Imagen (Ej. cafe.jpg)</label>
-                        <input type="text" id="imagenUrl" name="imagenUrl" value="${producto.imagenUrl}" placeholder="Opcional">
+                        <input type="text" id="imagenUrl" name="imagenUrl" value="${fn:escapeXml(producto.imagenUrl)}" placeholder="Opcional">
                     </div>
                 </div>
 
                 <div class="campo">
                     <label for="descripcion">Descripción corta</label>
-                    <textarea id="descripcion" name="descripcion" rows="3" required maxlength="255">${producto.descripcion}</textarea>
+                    <textarea id="descripcion" name="descripcion" rows="3" required maxlength="255">${fn:escapeXml(producto.descripcion)}</textarea>
                 </div>
 
                 <!-- Casillas de verificación para booleanos -->

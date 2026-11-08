@@ -24,7 +24,7 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
         <div class="tarjeta">
             <span class="texto-suave" style="font-size: 13px; font-weight: 700;">VENTAS ENTREGADAS</span>
-            <h3 style="font-size: 28px; margin: 6px 0;">$${reporte.ventasTotales}</h3>
+            <h3 style="font-size: 28px; margin: 6px 0;">$<fmt:formatNumber value="${reporte.ventasTotales}" pattern="#,##0.00"/></h3>
             <span class="texto-suave" style="font-size: 12px;">${reporte.totalPedidosEntregados} pedidos</span>
         </div>
         <div class="tarjeta">
@@ -69,55 +69,54 @@
     // Gráfico de Pedidos por Estado (Barras)
     const ctxEstados = document.getElementById('graficoEstados').getContext('2d');
     new Chart(ctxEstados, {
-        type: 'bar',
-        data: {
+    type: 'bar',
+            data: {
             labels: [
-                <c:forEach var="entry" items="${reporte.pedidosPorEstado}">
-                    '${entry.key}',
-                </c:forEach>
+    <c:forEach var="entry" items="${reporte.pedidosPorEstado}">
+            '${entry.key}',
+    </c:forEach>
             ],
-            datasets: [{
-                label: 'Cantidad de Pedidos',
-                data: [
-                    <c:forEach var="entry" items="${reporte.pedidosPorEstado}">
-                        ${entry.value},
-                    </c:forEach>
-                ],
-                backgroundColor: '#5E6CB3',
-                borderRadius: 8
-            }]
-        },
-        options: {
+                    datasets: [{
+                    label: 'Cantidad de Pedidos',
+                            data: [
+    <c:forEach var="entry" items="${reporte.pedidosPorEstado}">
+        ${entry.value},
+    </c:forEach>
+                            ],
+                            backgroundColor: '#5E6CB3',
+                            borderRadius: 8
+                    }]
+            },
+            options: {
             responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
-        }
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+            }
     });
-
     // Gráfico Top 5 Platillos (Pastel / Doughnut)
     const ctxTop = document.getElementById('graficoTopPlatillos').getContext('2d');
     new Chart(ctxTop, {
-        type: 'doughnut',
-        data: {
+    type: 'doughnut',
+            data: {
             labels: [
-                <c:forEach var="item" items="${reporte.topPlatillos}">
-                    '${item.key}',
-                </c:forEach>
+    <c:forEach var="item" items="${reporte.topPlatillos}">
+            '${item.key}',
+    </c:forEach>
             ],
-            datasets: [{
-                data: [
-                    <c:forEach var="item" items="${reporte.topPlatillos}">
-                        ${item.value},
-                    </c:forEach>
-                ],
-                backgroundColor: ['#5E6CB3', '#F5C74D', '#46528F', '#2B2D42', '#A3A9D0']
-            }]
-        },
-        options: {
+                    datasets: [{
+                    data: [
+    <c:forEach var="item" items="${reporte.topPlatillos}">
+        ${item.value},
+    </c:forEach>
+                    ],
+                            backgroundColor: ['#5E6CB3', '#F5C74D', '#46528F', '#2B2D42', '#A3A9D0']
+                    }]
+            },
+            options: {
             responsive: true,
-            maintainAspectRatio: false
-        }
+                    maintainAspectRatio: false
+            }
     });
 </script>
 

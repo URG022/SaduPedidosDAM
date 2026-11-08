@@ -19,13 +19,16 @@
         <c:if test="${not empty error}">
             <p class="alerta alerta-error"><c:out value="${error}"/></p>
         </c:if>
+        <c:if test="${param.error == '1'}">
+            <p class="alerta alerta-error">Ese usuario no es un cliente o no existe. Solo se pueden gestionar cuentas de clientes.</p>
+        </c:if>
         <c:if test="${param.exito == '1'}">
             <p class="alerta alerta-exito">La cuenta ha sido desactivada con éxito.</p>
         </c:if>
         <c:if test="${param.exito == '2'}">
             <p class="alerta alerta-exito">La cuenta ha sido reactivada con éxito.</p>
         </c:if>
-            <c:if test="${param.exito == '3'}">
+        <c:if test="${param.exito == '3'}">
             <p class="alerta alerta-exito">La información del cliente ha sido actualizada con éxito.</p>
         </c:if>
 
@@ -73,10 +76,10 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                   <td>
+                                    <td>
                                         <div style="display: flex; gap: 8px;">
                                             <a href="${ctx}/admin/clientes?accion=editar&id=${c.idUsuario}" class="btn btn-borde btn-chico">Editar</a>
-                                            
+
                                             <c:choose>
                                                 <c:when test="${c.activo}">
                                                     <button onclick="confirmarDesactivacion(${c.idUsuario})" class="btn btn-peligro btn-chico">Desactivar</button>

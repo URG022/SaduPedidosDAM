@@ -38,14 +38,14 @@
 
     <!-- Contenedor Kanban de 4 Columnas con Colores Vivos -->
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: start;">
-        
+
         <!-- COLUMNA 1: RECIBIDOS -->
         <div style="background: #EEF2FF; border-radius: 16px; padding: 16px; min-height: 500px; border: 1px solid #C7D2FE;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding: 0 4px;">
                 <h3 style="font-size: 16px; margin: 0; font-weight: 800; color: #312E81;">Recibidos</h3>
                 <span style="background: #4F46E5; color: white; padding: 2px 10px; border-radius: 50px; font-size: 12px; font-weight: bold;" id="count-recibidos">0</span>
             </div>
-            
+
             <div class="columna-pedidos" data-estado="RECIBIDO">
                 <c:forEach var="p" items="${pedidos}">
                     <c:if test="${p.estado eq 'RECIBIDO'}">
@@ -75,6 +75,11 @@
                                     Empezar a preparar
                                 </button>
                             </form>
+                            <!-- Cancelar: solo es posible mientras el pedido está en RECIBIDO -->
+                            <button type="button" class="boton" onclick="abrirModalCancelar(${p.idPedido})"
+                                    style="width: 100%; margin-top: 8px; padding: 8px; font-size: 13px; cursor: pointer; border-radius: 10px; background-color: white; color: #B42318; border: 1px solid #F3B8B2; font-weight: 700;">
+                                Cancelar pedido
+                            </button>
                         </div>
                     </c:if>
                 </c:forEach>
@@ -87,7 +92,7 @@
                 <h3 style="font-size: 16px; margin: 0; font-weight: 800; color: #78350F;">En preparación</h3>
                 <span style="background: #D97706; color: white; padding: 2px 10px; border-radius: 50px; font-size: 12px; font-weight: bold;" id="count-preparacion">0</span>
             </div>
-            
+
             <div class="columna-pedidos" data-estado="EN_PREPARACION">
                 <c:forEach var="p" items="${pedidos}">
                     <c:if test="${p.estado eq 'EN_PREPARACION'}">
@@ -129,7 +134,7 @@
                 <h3 style="font-size: 16px; margin: 0; font-weight: 800; color: #065F46;">Listos</h3>
                 <span style="background: #059669; color: white; padding: 2px 10px; border-radius: 50px; font-size: 12px; font-weight: bold;" id="count-listos">0</span>
             </div>
-            
+
             <div class="columna-pedidos" data-estado="LISTO">
                 <c:forEach var="p" items="${pedidos}">
                     <c:if test="${p.estado eq 'LISTO'}">
@@ -151,7 +156,7 @@
                                     ${p.tipoEntrega.etiqueta}
                                 </span>
                             </div>
-                            
+
                             <form action="${ctx}/cocina" method="POST">
                                 <input type="hidden" name="idPedido" value="${p.idPedido}">
                                 <c:choose>
@@ -194,7 +199,7 @@
                 <h3 style="font-size: 16px; margin: 0; font-weight: 800; color: #0369A1;">En camino</h3>
                 <span style="background: #0284C7; color: white; padding: 2px 10px; border-radius: 50px; font-size: 12px; font-weight: bold;" id="count-camino">0</span>
             </div>
-            
+
             <div class="columna-pedidos" data-estado="EN_CAMINO">
                 <c:forEach var="p" items="${pedidos}">
                     <c:if test="${p.estado eq 'EN_CAMINO'}">
@@ -214,29 +219,29 @@
                             <div style="margin-bottom: 14px;">
                                 <span style="background: #E0F2FE; color: #0369A1; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">${p.tipoEntrega.etiqueta}</span>
                             </div>
-                            
+
                             <c:choose>
-                            <c:when test="${not usuario.cocina}">
-                                <!-- Solo cocina entrega y cobra; el admin solo observa -->
-                                <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro en cocina</div>
-                            </c:when>
-                            <c:otherwise>
-                            <form action="${ctx}/cocina" method="POST">
-                                <input type="hidden" name="idPedido" value="${p.idPedido}">
-                                <input type="hidden" name="estado" value="ENTREGADO">
-                                <input type="hidden" name="comentario" value="Pedido entregado a domicilio">
-                                <span style="font-size: 12px; font-weight: 700; color: #475569;">El repartidor cobró con:</span>
-                                <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-                                    <select name="metodoPago" class="campo" style="padding: 8px; font-size: 12px; border-radius: 8px; flex: 1; border: 1px solid #CBD5E1; font-weight: 600;" required>
-                                        <option value="EFECTIVO">Efectivo</option>
-                                        <option value="TARJETA">Tarjeta</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="boton" style="width: 100%; padding: 10px; font-size: 13px; border: none; cursor: pointer; border-radius: 10px; background-color: #0284C7; color: white; font-weight: 700; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);">
-                                    Confirmar entrega
-                                </button>
-                            </form>
-                            </c:otherwise>
+                                <c:when test="${not usuario.cocina}">
+                                    <!-- Solo cocina entrega y cobra; el admin solo observa -->
+                                    <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro en cocina</div>
+                                </c:when>
+                                <c:otherwise>
+                                    <form action="${ctx}/cocina" method="POST">
+                                        <input type="hidden" name="idPedido" value="${p.idPedido}">
+                                        <input type="hidden" name="estado" value="ENTREGADO">
+                                        <input type="hidden" name="comentario" value="Pedido entregado a domicilio">
+                                        <span style="font-size: 12px; font-weight: 700; color: #475569;">El repartidor cobró con:</span>
+                                        <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+                                            <select name="metodoPago" class="campo" style="padding: 8px; font-size: 12px; border-radius: 8px; flex: 1; border: 1px solid #CBD5E1; font-weight: 600;" required>
+                                                <option value="EFECTIVO">Efectivo</option>
+                                                <option value="TARJETA">Tarjeta</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="boton" style="width: 100%; padding: 10px; font-size: 13px; border: none; cursor: pointer; border-radius: 10px; background-color: #0284C7; color: white; font-weight: 700; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);">
+                                            Confirmar entrega
+                                        </button>
+                                    </form>
+                                </c:otherwise>
                             </c:choose>
                         </div>
                     </c:if>
@@ -247,25 +252,69 @@
     </div>
 </div>
 
+<!-- Modal de confirmación para cancelar un pedido -->
+<div class="modal-fondo" id="modalCancelar" onclick="if (event.target === this) cerrarModalCancelar()">
+    <div class="tarjeta modal-caja">
+        <h3>¿Cancelar el pedido <span id="numeroCancelar"></span>?</h3>
+        <p class="texto-suave" style="margin-bottom: 16px;">El cliente verá su pedido como cancelado. Esta acción no se puede deshacer.</p>
+        <form action="${ctx}/cocina" method="POST">
+            <input type="hidden" name="idPedido" id="idPedidoCancelar">
+            <input type="hidden" name="estado" value="CANCELADO">
+            <div class="campo" style="text-align: left; margin-bottom: 20px;">
+                <label for="motivoCancelar">Motivo</label>
+                <select id="motivoCancelar" name="comentario">
+                    <option value="Pedido cancelado por el restaurante">Cancelado por el restaurante</option>
+                    <option value="Cancelado a solicitud del cliente">El cliente lo solicitó</option>
+                    <option value="Cancelado: producto agotado">Producto agotado</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button type="button" class="btn btn-borde" onclick="cerrarModalCancelar()">Volver</button>
+                <button type="submit" class="btn btn-peligro">Sí, cancelar pedido</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+    function abrirModalCancelar(idPedido) {
+        document.getElementById('idPedidoCancelar').value = idPedido;
+        document.getElementById('numeroCancelar').textContent = '#' + idPedido;
+        document.getElementById('modalCancelar').classList.add('activo');
+    }
+
+    function cerrarModalCancelar() {
+        document.getElementById('modalCancelar').classList.remove('activo');
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            cerrarModalCancelar();
+        }
+    });
+
     function filtrarPedidos() {
         const tipoSeleccionado = document.getElementById('filtroEntrega').value;
         const tarjetas = document.querySelectorAll('.tarjeta-pedido');
-        
+
         let cRecibidos = 0, cPreparacion = 0, cListos = 0, cCamino = 0;
 
         tarjetas.forEach(tarjeta => {
             const tipoPedido = tarjeta.getAttribute('data-tipo');
             const estadoColumna = tarjeta.closest('.columna-pedidos').getAttribute('data-estado');
-            
+
             const coincide = (tipoSeleccionado === 'TODOS' || tipoPedido === tipoSeleccionado);
-            
+
             if (coincide) {
                 tarjeta.style.display = 'block';
-                if (estadoColumna === 'RECIBIDO') cRecibidos++;
-                if (estadoColumna === 'EN_PREPARACION') cPreparacion++;
-                if (estadoColumna === 'LISTO') cListos++;
-                if (estadoColumna === 'EN_CAMINO') cCamino++;
+                if (estadoColumna === 'RECIBIDO')
+                    cRecibidos++;
+                if (estadoColumna === 'EN_PREPARACION')
+                    cPreparacion++;
+                if (estadoColumna === 'LISTO')
+                    cListos++;
+                if (estadoColumna === 'EN_CAMINO')
+                    cCamino++;
             } else {
                 tarjeta.style.display = 'none';
             }
@@ -277,7 +326,7 @@
         document.getElementById('count-camino').innerText = cCamino;
     }
 
-    window.onload = function() {
+    window.onload = function () {
         filtrarPedidos();
     };
 </script>

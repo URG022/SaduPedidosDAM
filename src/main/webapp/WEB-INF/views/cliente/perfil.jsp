@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="titulo" value="Mi Perfil"/>
 <c:set var="seccion" value="perfil"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado.jspf" %>
@@ -28,22 +29,22 @@
                 
                 <div class="campo">
                     <label for="nombreCompleto">Nombre Completo</label>
-                    <input type="text" id="nombreCompleto" name="nombreCompleto" value="${perfil.nombreCompleto}" required maxlength="120">
+                    <input type="text" id="nombreCompleto" name="nombreCompleto" value="${fn:escapeXml(perfil.nombreCompleto)}" required maxlength="120">
                 </div>
 
                 <div class="campo">
                     <label for="correo">Correo Electrónico</label>
-                    <input type="email" id="correo" name="correo" value="${perfil.correo}" required maxlength="160">
+                    <input type="email" id="correo" name="correo" value="${fn:escapeXml(perfil.correo)}" required maxlength="160">
                 </div>
 
                 <div class="campo">
                     <label for="telefono">Teléfono</label>
-                    <input type="tel" id="telefono" name="telefono" value="${perfil.telefono}" required maxlength="15" placeholder="Ej. 7777-7777">
+                    <input type="tel" id="telefono" name="telefono" value="${fn:escapeXml(perfil.telefono)}" required maxlength="15" placeholder="Ej. 7777-7777">
                 </div>
 
                 <div class="campo">
                     <label for="direccion">Dirección de Entrega</label>
-                    <textarea id="direccion" name="direccion" rows="3" maxlength="200" placeholder="Ej. Colonia Escalón, Calle Principal, Casa #123...">${perfil.direccion}</textarea>
+                    <textarea id="direccion" name="direccion" rows="3" maxlength="200" placeholder="Ej. Colonia Escalón, Calle Principal, Casa #123...">${fn:escapeXml(perfil.direccion)}</textarea>
                 </div>
 
                      <!-- Sección de seguridad -->

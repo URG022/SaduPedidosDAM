@@ -12,6 +12,7 @@ import java.util.Map;
  * @author serva
  */
 public class ReporteDTO implements Serializable {
+
     private double ventasTotales;
     private double ticketPromedio;
     private int pedidosActivos;
@@ -19,27 +20,72 @@ public class ReporteDTO implements Serializable {
     private String horaPico;
     private Map<String, Integer> topPlatillos;
     private Map<String, Integer> pedidosPorEstado;
+    private Map<String, Double> ventasPorDia;      // fecha (yyyy-MM-dd) -> total vendido ese día
 
-    public ReporteDTO() {}
+    public ReporteDTO() {
+    }
 
-    public double getVentasTotales() { return ventasTotales; }
-    public void setVentasTotales(double ventasTotales) { this.ventasTotales = ventasTotales; }
+    public double getVentasTotales() {
+        return ventasTotales;
+    }
 
-    public double getTicketPromedio() { return ticketPromedio; }
-    public void setTicketPromedio(double ticketPromedio) { this.ticketPromedio = ticketPromedio; }
+    public void setVentasTotales(double ventasTotales) {
+        this.ventasTotales = ventasTotales;
+    }
 
-    public int getPedidosActivos() { return pedidosActivos; }
-    public void setPedidosActivos(int pedidosActivos) { this.pedidosActivos = pedidosActivos; }
+    public double getTicketPromedio() {
+        return ticketPromedio;
+    }
 
-    public int getTotalPedidosEntregados() { return totalPedidosEntregados; }
-    public void setTotalPedidosEntregados(int totalPedidosEntregados) { this.totalPedidosEntregados = totalPedidosEntregados; }
+    public void setTicketPromedio(double ticketPromedio) {
+        this.ticketPromedio = ticketPromedio;
+    }
 
-    public String getHoraPico() { return horaPico; }
-    public void setHoraPico(String horaPico) { this.horaPico = horaPico; }
+    public int getPedidosActivos() {
+        return pedidosActivos;
+    }
 
-    public Map<String, Integer> getTopPlatillos() { return topPlatillos; }
-    public void setTopPlatillos(Map<String, Integer> topPlatillos) { this.topPlatillos = topPlatillos; }
+    public void setPedidosActivos(int pedidosActivos) {
+        this.pedidosActivos = pedidosActivos;
+    }
 
-    public Map<String, Integer> getPedidosPorEstado() { return pedidosPorEstado; }
-    public void setPedidosPorEstado(Map<String, Integer> pedidosPorEstado) { this.pedidosPorEstado = pedidosPorEstado; }
+    public int getTotalPedidosEntregados() {
+        return totalPedidosEntregados;
+    }
+
+    public void setTotalPedidosEntregados(int totalPedidosEntregados) {
+        this.totalPedidosEntregados = totalPedidosEntregados;
+    }
+
+    public String getHoraPico() {
+        return horaPico;
+    }
+
+    public void setHoraPico(String horaPico) {
+        this.horaPico = horaPico;
+    }
+
+    public Map<String, Integer> getTopPlatillos() {
+        return topPlatillos;
+    }
+
+    public void setTopPlatillos(Map<String, Integer> topPlatillos) {
+        this.topPlatillos = topPlatillos;
+    }
+
+    public Map<String, Integer> getPedidosPorEstado() {
+        return pedidosPorEstado;
+    }
+
+    public void setPedidosPorEstado(Map<String, Integer> pedidosPorEstado) {
+        this.pedidosPorEstado = pedidosPorEstado;
+    }
+
+    public Map<String, Double> getVentasPorDia() {
+        return ventasPorDia;
+    }
+
+    public void setVentasPorDia(Map<String, Double> ventasPorDia) {
+        this.ventasPorDia = ventasPorDia;
+    }
 }

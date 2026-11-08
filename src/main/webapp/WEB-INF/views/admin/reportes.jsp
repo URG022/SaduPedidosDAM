@@ -7,6 +7,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="titulo" value="Reportes"/>
 <c:set var="seccion" value="reportes"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado-admin.jspf" %>
@@ -61,10 +62,10 @@
         </div>
 
         <!-- Tarjetas internas de métricas -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px;">
             <div style="background: #FAF6F0; padding: 15px; border-radius: 12px; border-left: 4px solid #5E6CB3;">
                 <span style="font-size: 12px; color: #666; font-weight: bold; text-transform: uppercase;">Total Ventas</span>
-                <h4 style="margin: 5px 0 0 0; font-size: 22px; color: #46528F;">$${reporte.ventasTotales}</h4>
+                <h4 style="margin: 5px 0 0 0; font-size: 22px; color: #46528F;">$<fmt:formatNumber value="${reporte.ventasTotales}" pattern="#,##0.00"/></h4>
             </div>
             <div style="background: #FAF6F0; padding: 15px; border-radius: 12px; border-left: 4px solid #F5C74D;">
                 <span style="font-size: 12px; color: #666; font-weight: bold; text-transform: uppercase;">Pedidos Entregados</span>
@@ -76,6 +77,69 @@
                     $<fmt:formatNumber value="${reporte.ticketPromedio}" pattern="#,##0.00"/>
                 </h4>
             </div>
+            <div style="background: #FAF6F0; padding: 15px; border-radius: 12px; border-left: 4px solid #F5C74D;">
+                <span style="font-size: 12px; color: #666; font-weight: bold; text-transform: uppercase;">Hora Pico</span>
+                <h4 style="margin: 5px 0 0 0; font-size: 22px; color: #2B2D42;"><c:out value="${reporte.horaPico}"/></h4>
+            </div>
+        </div>
+
+        <!-- Detalle del periodo: ventas por día, platillos más vendidos y pedidos por estado -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 24px;">
+
+            <div>
+                <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #2B2D42;">Ventas por día</h4>
+                <table class="tabla">
+                    <thead><tr><th>Fecha</th><th style="text-align: right;">Ventas</th></tr></thead>
+                    <tbody>
+                        <c:forEach var="v" items="${reporte.ventasPorDia}">
+                            <tr>
+                                <td>${v.key}</td>
+                                <td style="text-align: right;">$<fmt:formatNumber value="${v.value}" pattern="#,##0.00"/></td>
+                            </tr>
+                        </c:forEach>
+                        <c:if test="${empty reporte.ventasPorDia}">
+                            <tr><td colspan="2" class="texto-suave">Sin ventas en este periodo.</td></tr>
+                        </c:if>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #2B2D42;">Top 5 platillos</h4>
+                <table class="tabla">
+                    <thead><tr><th>Platillo</th><th style="text-align: right;">Unidades</th></tr></thead>
+                    <tbody>
+                        <c:forEach var="t" items="${reporte.topPlatillos}">
+                            <tr>
+                                <td><c:out value="${t.key}"/></td>
+                                <td style="text-align: right;">${t.value}</td>
+                            </tr>
+                        </c:forEach>
+                        <c:if test="${empty reporte.topPlatillos}">
+                            <tr><td colspan="2" class="texto-suave">Sin platillos vendidos en este periodo.</td></tr>
+                        </c:if>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h4 style="margin: 0 0 10px 0; font-size: 16px; color: #2B2D42;">Pedidos por estado</h4>
+                <table class="tabla">
+                    <thead><tr><th>Estado</th><th style="text-align: right;">Pedidos</th></tr></thead>
+                    <tbody>
+                        <c:forEach var="e" items="${reporte.pedidosPorEstado}">
+                            <tr>
+                                <td><span class="badge badge-${e.key}">${fn:replace(e.key, '_', ' ')}</span></td>
+                                <td style="text-align: right;">${e.value}</td>
+                            </tr>
+                        </c:forEach>
+                        <c:if test="${empty reporte.pedidosPorEstado}">
+                            <tr><td colspan="2" class="texto-suave">Sin pedidos en este periodo.</td></tr>
+                        </c:if>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 </div>

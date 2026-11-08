@@ -24,7 +24,7 @@ public class AdminClienteServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String accion = request.getParameter("accion");
         if (accion == null) {
             accion = "listar";
@@ -35,18 +35,24 @@ public class AdminClienteServlet extends HttpServlet {
                 case "editar":
                     Long idEditar = Long.parseLong(request.getParameter("id"));
                     Cliente cEditar = servicioCliente.obtenerPerfil(idEditar);
+                    if (cEditar == null) {
+                        response.sendRedirect(request.getContextPath() + "/admin/clientes?error=1");
+                        return;
+                    }
                     request.setAttribute("cliente", cEditar);
                     request.getRequestDispatcher("/WEB-INF/views/admin/form_cliente.jsp").forward(request, response);
                     break;
                 case "desactivar":
                     Long idDesactivar = Long.parseLong(request.getParameter("id"));
-                    servicioCliente.desactivarCuenta(idDesactivar);
-                    response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=1");
+                    boolean desactivado = servicioCliente.desactivarCuenta(idDesactivar);
+                    response.sendRedirect(request.getContextPath()
+                            + (desactivado ? "/admin/clientes?exito=1" : "/admin/clientes?error=1"));
                     break;
                 case "activar":
                     Long idActivar = Long.parseLong(request.getParameter("id"));
-                    servicioCliente.activarCuenta(idActivar);
-                    response.sendRedirect(request.getContextPath() + "/admin/clientes?exito=2");
+                    boolean activado = servicioCliente.activarCuenta(idActivar);
+                    response.sendRedirect(request.getContextPath()
+                            + (activado ? "/admin/clientes?exito=2" : "/admin/clientes?error=1"));
                     break;
                 default:
                     List<Cliente> lista = servicioCliente.obtenerTodosLosClientes();
@@ -65,7 +71,7 @@ public class AdminClienteServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         request.setCharacterEncoding("UTF-8");
 
         try {
