@@ -12,7 +12,7 @@
 <%@ include file="/WEB-INF/views/plantilla/encabezado-admin.jspf" %>
 
 <!-- Cargar Chart.js desde CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 
 <div style="display: flex; flex-direction: column; gap: 20px;">
     <div>

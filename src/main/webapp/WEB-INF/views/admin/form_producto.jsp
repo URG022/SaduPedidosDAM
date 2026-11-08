@@ -5,11 +5,11 @@
 <c:set var="seccion" value="productos"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado-admin.jspf" %>
 <div class="layout-admin">
-    
+
 
     <!-- Contenido Principal -->
     <main class="contenido-admin" style="justify-content: center; align-items: center;">
-        
+
         <div style="display: flex; align-items: center; gap: 16px;">
             <h1>${empty producto ? 'Registrar Nuevo Platillo' : 'Editar Platillo'}</h1>
         </div>
@@ -20,10 +20,10 @@
 
         <div class="tarjeta" style="max-width: 700px;">
             <form action="${ctx}/admin/productos" method="POST" class="formulario">
-                
+
                 <!-- Campo oculto para el ID: Si está vacío, el Servlet sabe que es un registro nuevo -->
                 <input type="hidden" name="idProducto" value="${producto.idProducto}">
-                
+
                 <div class="fila-2">
                     <div class="campo">
                         <label for="nombre">Nombre del Platillo</label>
@@ -32,11 +32,11 @@
                     <div class="campo">
                         <label for="idCategoria">Categoría</label>
                         <select id="idCategoria" name="idCategoria" required>
-                            <option value="" disabled ${empty producto ? 'selected' : ''}>Seleccione una...</option>
-                            <option value="1" ${producto.idCategoria == 1 ? 'selected' : ''}>Desayunos</option>
-                            <option value="2" ${producto.idCategoria == 2 ? 'selected' : ''}>Platos fuertes</option>
-                            <option value="3" ${producto.idCategoria == 3 ? 'selected' : ''}>Bebidas</option>
-                            <option value="4" ${producto.idCategoria == 4 ? 'selected' : ''}>Postres</option>
+                            <c:forEach var="cat" items="${categorias}">
+                                <option value="${cat.idCategoria}" ${producto.idCategoria == cat.idCategoria ? 'selected' : ''}>
+                                    <c:out value="${cat.nombre}"/>${cat.activa ? '' : ' (inactiva)'}
+                                </option>
+                            </c:forEach>
                         </select>
                     </div>
                 </div>

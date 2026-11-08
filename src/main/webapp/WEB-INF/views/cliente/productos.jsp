@@ -24,13 +24,11 @@
         <!-- Filtros -->
         <div class="menu-filtros" id="filtros-categoria">
             <button class="btn btn-azul btn-chico" data-cat="Todos">Todos</button>
-            <button class="btn btn-borde btn-chico" data-cat="Desayunos">Desayunos</button>
-            <button class="btn btn-borde btn-chico" data-cat="Platos fuertes">Platos fuertes</button>
-            <button class="btn btn-borde btn-chico" data-cat="Bebidas">Bebidas</button>
-            <button class="btn btn-borde btn-chico" data-cat="Postres">Postres</button>
+            <c:forEach var="cat" items="${categorias}">
+                <button class="btn btn-borde btn-chico" data-cat="${cat.idCategoria}"><c:out value="${cat.nombre}"/></button>
+            </c:forEach>
         </div>
 
-        <!-- Grid de Platillos utilizando las clases globales -->
         <!-- Grid de Platillos -->
         <div class="grid-tarjetas">
             <c:if test="${empty productos}">
@@ -38,17 +36,11 @@
             </c:if>
 
             <c:forEach var="p" items="${productos}">
-                <!-- Definimos la categoría en una variable para usarla en el HTML y en el data-atributo -->
-                <c:choose>
-                    <c:when test="${p.idCategoria == 1}"><c:set var="nombreCat" value="Desayunos"/></c:when>
-                    <c:when test="${p.idCategoria == 2}"><c:set var="nombreCat" value="Platos fuertes"/></c:when>
-                    <c:when test="${p.idCategoria == 3}"><c:set var="nombreCat" value="Bebidas"/></c:when>
-                    <c:when test="${p.idCategoria == 4}"><c:set var="nombreCat" value="Postres"/></c:when>
-                    <c:otherwise><c:set var="nombreCat" value="Categoría"/></c:otherwise>
-                </c:choose>
+                <%-- Nombre de la categoría (viene de la tabla categorias). Si la categoría está inactiva, el platillo no se muestra --%>
+                <c:set var="nombreCat" value="${nombresCategoria[p.idCategoria]}"/>
+                <c:if test="${not empty nombreCat}">
 
-                <!-- Agregamos data-categoria a la tarjeta -->
-                <article class="platillo" id="p-${p.idProducto}" data-categoria="${nombreCat}">
+                <article class="platillo" id="p-${p.idProducto}" data-categoria="${p.idCategoria}">
                     <div class="platillo-foto" 
                          <c:if test="${not empty p.imagenUrl}">style="background-image: url('${ctx}/resources/img/${p.imagenUrl}')"</c:if>>
                         <c:if test="${empty p.imagenUrl}">[Foto]</c:if>
@@ -85,6 +77,7 @@
                         </div>
                     </div>
                 </article>
+                </c:if>
             </c:forEach>
         </div>
 

@@ -81,7 +81,6 @@ public class PedidoDAOImpl implements PedidoDAO {
         return p;
     }
 
-    // En PedidoDAOImpl (agrega el import de EstadoPedido si no lo tienes; ya lo usa mapear)
     @Override
     public Pedido obtenerPorId(Long idPedido) {
         Pedido p = null;
@@ -176,7 +175,6 @@ public class PedidoDAOImpl implements PedidoDAO {
         return p;
     }
 
-    // Implementación
     @Override
     public List<Pedido> obtenerActivos() {
         List<Pedido> lista = new ArrayList<>();

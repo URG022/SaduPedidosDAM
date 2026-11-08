@@ -1,6 +1,8 @@
 package sv.edu.itca.sadu.controller;
 
+import sv.edu.itca.sadu.model.Categoria;
 import sv.edu.itca.sadu.model.Producto;
+import sv.edu.itca.sadu.service.ServicioCategoria;
 import sv.edu.itca.sadu.service.ServicioProducto;
 
 import java.io.IOException;
@@ -16,15 +18,18 @@ import javax.servlet.http.HttpServletResponse;
 public class AdminProductoServlet extends HttpServlet {
 
     private ServicioProducto servicioProducto;
+    private ServicioCategoria servicioCategoria;
 
     @Override
     public void init() throws ServletException {
         servicioProducto = new ServicioProducto();
+        servicioCategoria = new ServicioCategoria();
     }
 
-   @Override
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        cargarCategorias(request);
 
         String accion = request.getParameter("accion");
         if (accion == null) {
@@ -50,7 +55,7 @@ public class AdminProductoServlet extends HttpServlet {
                     servicioProducto.eliminarProducto(idEliminar);
                     response.sendRedirect(request.getContextPath() + "/admin/productos?exito=1");
                     break;
-                    
+
                 // Reactiva la cuenta
                 case "activar":
                     // Activa y recarga la tabla con mensaje de éxito 2
@@ -127,5 +132,15 @@ public class AdminProductoServlet extends HttpServlet {
             // Si hay error, regresamos los datos al formulario para no perder lo escrito
             request.getRequestDispatcher("/WEB-INF/views/admin/form_producto.jsp").forward(request, response);
         }
+    }
+
+    /**
+     * Categorías para el select del formulario y para mostrar el nombre en la
+     * tabla.
+     */
+    private void cargarCategorias(HttpServletRequest request) {
+        List<Categoria> categorias = servicioCategoria.listarTodas();
+        request.setAttribute("categorias", categorias);
+        request.setAttribute("nombresCategoria", servicioCategoria.mapaNombres(categorias));
     }
 }

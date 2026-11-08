@@ -1,9 +1,8 @@
 package sv.edu.itca.sadu.controller;
 
-import sv.edu.itca.sadu.dao.ProductoDAO;
-import sv.edu.itca.sadu.dao.ProductoDAOImpl;
 import sv.edu.itca.sadu.model.*;
 import sv.edu.itca.sadu.service.PedidoService;
+import sv.edu.itca.sadu.service.ServicioProducto;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,12 +19,12 @@ public class CarritoServlet extends HttpServlet {
     private static final String VISTA = "/WEB-INF/views/cliente/carrito.jsp";
     private static final String CARRITO = "carrito";
 
-    private ProductoDAO productoDAO;
+    private ServicioProducto servicioProducto;
     private PedidoService pedidoService;
 
     @Override
     public void init() throws ServletException {
-        productoDAO = new ProductoDAOImpl();
+        servicioProducto = new ServicioProducto();
         pedidoService = new PedidoService();
     }
 
@@ -34,11 +33,6 @@ public class CarritoServlet extends HttpServlet {
      */
     private Usuario obtenerCliente(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-
-        HttpSession s = request.getSession(false);
-        Object o = (s == null) ? null : s.getAttribute("usuarioAutenticado");
-        System.out.println("[CARRITO] sesion=" + (s != null)
-                + " | usuarioAutenticado=" + (o == null ? "null" : o.getClass().getName()));
 
         if (session != null && session.getAttribute("usuarioAutenticado") instanceof Usuario) {
             Usuario usuario = (Usuario) session.getAttribute("usuarioAutenticado");
@@ -115,14 +109,14 @@ public class CarritoServlet extends HttpServlet {
                     throw new IllegalArgumentException("La cantidad debe ser mayor que cero.");
                 }
 
-                // Nombre y precio salen de la BD, nunca del formulario
-                Producto p = productoDAO.obtenerPorId(idProducto);
+                // Nombre y precio salen de la BD (a través del servicio), nunca del formulario
+                Producto p = servicioProducto.obtenerProductoPorId(idProducto);
                 if (p == null || !p.isDisponible()) {
                     throw new IllegalArgumentException("Ese platillo no está disponible.");
                 }
 
                 carrito.agregar(new ItemCarrito(p.getIdProducto(), p.getNombre(), p.getPrecio(), cantidad));
-                
+
                 // Si se agregó desde el menú, regresamos al menú con un aviso
                 if ("menu".equals(request.getParameter("volver"))) {
                     request.getSession().setAttribute("avisoCarrito", p.getNombre());

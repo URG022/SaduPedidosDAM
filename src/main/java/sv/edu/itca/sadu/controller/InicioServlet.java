@@ -8,20 +8,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import sv.edu.itca.sadu.dao.DAOException;
-import sv.edu.itca.sadu.dao.ProductoDAO;
-import sv.edu.itca.sadu.dao.ProductoDAOImpl;
+import sv.edu.itca.sadu.service.ServicioProducto;
 
-/**portada con los platillos destacados. */
+/**
+ * Portada con los platillos destacados.
+ */
 @WebServlet(name = "InicioServlet", urlPatterns = {"/inicio"})
 public class InicioServlet extends HttpServlet {
 
-    private final ProductoDAO productoDAO = new ProductoDAOImpl();
+    private final ServicioProducto servicioProducto = new ServicioProducto();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            request.setAttribute("destacados", productoDAO.listarDestacados());
+            request.setAttribute("destacados", servicioProducto.listarDestacados());
         } catch (DAOException e) {
             log("Inicio sin destacados: " + e.getCause().getMessage());
             request.setAttribute("destacados", Collections.emptyList());

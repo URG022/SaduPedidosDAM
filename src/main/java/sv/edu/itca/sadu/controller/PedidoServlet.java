@@ -68,7 +68,7 @@ public class PedidoServlet extends HttpServlet {
                 request.setAttribute("detalles", pedido.getDetalles());
                 request.setAttribute("seguimiento", pedido.getSeguimientos());
 
-                // Cuando Dev 4 entregue ComprobanteDAO, agrega aquí:
+                // Comprobante: solo existe si el pedido ya fue entregado
                 request.setAttribute("comprobante", pedidoService.obtenerComprobante(idPedido));
                 request.getRequestDispatcher("/WEB-INF/views/cliente/pedidos/detalle.jsp")
                         .forward(request, response);

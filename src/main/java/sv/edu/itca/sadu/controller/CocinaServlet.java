@@ -1,7 +1,5 @@
 package sv.edu.itca.sadu.controller;
 
-import sv.edu.itca.sadu.dao.PedidoDAO;
-import sv.edu.itca.sadu.dao.PedidoDAOImpl;
 import sv.edu.itca.sadu.model.EstadoPedido;
 import sv.edu.itca.sadu.model.Pedido;
 import sv.edu.itca.sadu.model.Usuario;

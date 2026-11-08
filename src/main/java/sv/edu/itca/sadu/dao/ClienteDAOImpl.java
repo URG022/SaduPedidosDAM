@@ -56,6 +56,7 @@ public class ClienteDAOImpl implements ClienteDAO {
                 psU.setString(2, cliente.getCorreo());
                 psU.setLong(3, cliente.getIdUsuario());
                 if (psU.executeUpdate() == 0) {
+                    // El id no existe o no es un cliente: no se toca nada
                     con.rollback();
                     return false;
                 }
@@ -140,5 +141,20 @@ public class ClienteDAOImpl implements ClienteDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // Hash de la contraseña actual (para verificarla antes de cambiarla)
+    @Override
+    public String obtenerHashClave(Long idUsuario) {
+        String sql = "SELECT hash_clave FROM usuarios WHERE id_usuario = ?";
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString("hash_clave") : null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

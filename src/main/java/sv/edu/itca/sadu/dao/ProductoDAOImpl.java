@@ -148,18 +148,16 @@ public class ProductoDAOImpl implements ProductoDAO {
         return p;
     }
 
-    //Paginador
-    // Método para obtener la lista cortada (15 registros)
+    // Paginador: devuelve una página de productos (LIMIT/OFFSET)
     public List<Producto> obtenerProductosPaginados(int limite, int offset) {
         List<Producto> lista = new ArrayList<>();
         String sql = "SELECT * FROM productos ORDER BY id_producto ASC LIMIT ? OFFSET ?";
 
-        try (Connection con = ConexionBD.obtenerConexion(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, limite);
             ps.setInt(2, offset);
-            
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Producto p = new Producto();
@@ -171,12 +169,11 @@ public class ProductoDAOImpl implements ProductoDAO {
                     p.setImagenUrl(rs.getString("imagen_url"));
                     p.setDisponible(rs.getBoolean("disponible"));
                     p.setDestacado(rs.getBoolean("destacado"));
-                    
+
                     lista.add(p);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error al obtener productos paginados: " + e.getMessage());
             e.printStackTrace();
         }
         return lista;
@@ -187,10 +184,8 @@ public class ProductoDAOImpl implements ProductoDAO {
         int total = 0;
         String sql = "SELECT COUNT(*) FROM productos";
 
-        try (Connection con = ConexionBD.obtenerConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
             if (rs.next()) {
                 total = rs.getInt(1); // Obtiene el valor del COUNT(*)
             }
@@ -200,16 +195,15 @@ public class ProductoDAOImpl implements ProductoDAO {
         }
         return total;
     }
-    
+
     public boolean activarProducto(Long idProducto) {
-    String sql = "UPDATE productos SET disponible = 1 WHERE id_producto = ?";
-    try (Connection con = ConexionBD.obtenerConexion();
-         PreparedStatement ps = con.prepareStatement(sql)) {
-        ps.setLong(1, idProducto);
-        return ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
+        String sql = "UPDATE productos SET disponible = 1 WHERE id_producto = ?";
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, idProducto);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
-    return false;
-}
 }

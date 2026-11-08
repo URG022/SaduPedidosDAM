@@ -34,6 +34,13 @@ public class ServicioProducto {
         return productoDAO.obtenerPorId(idProducto);
     }
 
+    /**
+     * Platillos destacados y disponibles de categorías activas (portada* /inicio).
+     */
+    public List<Producto> listarDestacados() throws DAOException {
+        return productoDAO.listarDestacados();
+    }
+
     public List<Producto> obtenerTodosLosProductos() throws DAOException {
         return productoDAO.obtenerTodos();
     }

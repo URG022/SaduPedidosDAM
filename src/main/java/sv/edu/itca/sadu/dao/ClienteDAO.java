@@ -7,16 +7,21 @@ public interface ClienteDAO {
 
     //Cliente
     Cliente obtenerPorIdUsuario(Long idUsuario);
+
     boolean actualizarPerfil(Cliente cliente);
-    
+
     //ListadoAdministrador
     List<Cliente> obtenerTodosLosClientes();
-    
+
     //Activar/desactivar cuenta (lógico)
     boolean desactivarCuenta(Long idUsuario);
+
     boolean activarCuenta(Long idUsuario);
-    
+
     //Actualizar contraseña
     boolean actualizarClave(Long idUsuario, String hashClave);
-    
+
+    // Hash de la contraseña actual (para verificarla antes de cambiarla)
+    String obtenerHashClave(Long idUsuario);
+
 }

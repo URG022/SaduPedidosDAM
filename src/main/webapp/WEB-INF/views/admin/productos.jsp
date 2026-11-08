@@ -11,7 +11,10 @@
         <!-- Título y Botón Superior -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <h1>Gestión de Menú</h1>
-            <a href="${ctx}/admin/productos?accion=nuevo" class="btn btn-sol">Nuevo Platillo</a>
+            <div style="display: flex; gap: 10px;">
+                <a href="${ctx}/admin/categorias" class="btn btn-borde">Categorías</a>
+                <a href="${ctx}/admin/productos?accion=nuevo" class="btn btn-sol">Nuevo Platillo</a>
+            </div>
         </div>
 
         <!-- Alertas de Error/Éxito -->
@@ -50,13 +53,7 @@
                                     <td>${p.idProducto}</td>
                                     <td><strong><c:out value="${p.nombre}"/></strong></td>
                                     <td>
-                                        <c:choose>
-                                            <c:when test="${p.idCategoria == 1}">Desayunos</c:when>
-                                            <c:when test="${p.idCategoria == 2}">Platos fuertes</c:when>
-                                            <c:when test="${p.idCategoria == 3}">Bebidas</c:when>
-                                            <c:when test="${p.idCategoria == 4}">Postres</c:when>
-                                            <c:otherwise>Otra</c:otherwise>
-                                        </c:choose>
+                                        <c:out value="${empty nombresCategoria[p.idCategoria] ? 'Sin categoría' : nombresCategoria[p.idCategoria]}"/>
                                     </td>
                                     <td>$${p.precio}</td>
                                     <td>
