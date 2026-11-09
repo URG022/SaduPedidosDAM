@@ -5,100 +5,96 @@
 <c:set var="seccion" value="clientes"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado-admin.jspf" %>
 
-<div class="layout-admin">
+<div style="display: flex; flex-direction: column; gap: 20px;">
 
-    <!-- Contenido Principal -->
-    <main class="contenido-admin">
+    <!-- Título -->
+    <div>
+        <h1 style="font-size: 26px; margin: 0;">Clientes</h1>
+        <p class="texto-suave" style="margin: 4px 0 0">Directorio de clientes.</p>
+    </div>
 
-        <!-- Título -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <h1>Directorio de Clientes</h1>
-        </div>
+    <!-- Alertas de Error/Éxito -->
+    <c:if test="${not empty error}">
+        <p class="alerta alerta-error"><c:out value="${error}"/></p>
+    </c:if>
+    <c:if test="${param.error == '1'}">
+        <p class="alerta alerta-error">Ese usuario no es un cliente o no existe. Solo se pueden gestionar cuentas de clientes.</p>
+    </c:if>
+    <c:if test="${param.exito == '1'}">
+        <p class="alerta alerta-exito">La cuenta ha sido desactivada con éxito.</p>
+    </c:if>
+    <c:if test="${param.exito == '2'}">
+        <p class="alerta alerta-exito">La cuenta ha sido reactivada con éxito.</p>
+    </c:if>
+    <c:if test="${param.exito == '3'}">
+        <p class="alerta alerta-exito">La información del cliente ha sido actualizada con éxito.</p>
+    </c:if>
 
-        <!-- Alertas de Error/Éxito -->
-        <c:if test="${not empty error}">
-            <p class="alerta alerta-error"><c:out value="${error}"/></p>
-        </c:if>
-        <c:if test="${param.error == '1'}">
-            <p class="alerta alerta-error">Ese usuario no es un cliente o no existe. Solo se pueden gestionar cuentas de clientes.</p>
-        </c:if>
-        <c:if test="${param.exito == '1'}">
-            <p class="alerta alerta-exito">La cuenta ha sido desactivada con éxito.</p>
-        </c:if>
-        <c:if test="${param.exito == '2'}">
-            <p class="alerta alerta-exito">La cuenta ha sido reactivada con éxito.</p>
-        </c:if>
-        <c:if test="${param.exito == '3'}">
-            <p class="alerta alerta-exito">La información del cliente ha sido actualizada con éxito.</p>
-        </c:if>
-
-        <!-- Tabla de Datos -->
-        <div class="tabla-caja">
-            <table class="tabla">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre Completo</th>
-                        <th>Correo</th>
-                        <th>Teléfono</th>
-                        <th>Estado</th>
-                        <th style="width: 120px;">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:choose>
-                        <c:when test="${empty clientes}">
+    <!-- Tabla de Datos -->
+    <div class="tabla-caja">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th style="width: 120px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:choose>
+                    <c:when test="${empty clientes}">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px;" class="texto-suave">
+                                No hay clientes registrados aún.
+                            </td>
+                        </tr>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach var="c" items="${clientes}">
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 30px;" class="texto-suave">
-                                    No hay clientes registrados aún.
+                                <td>${c.idUsuario}</td>
+                                <td><strong><c:out value="${c.nombreCompleto}"/></strong></td>
+                                <td><c:out value="${c.correo}"/></td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty c.telefono}"><c:out value="${c.telefono}"/></c:when>
+                                        <c:otherwise><span class="texto-suave">-</span></c:otherwise>
+                                    </c:choose>
                                 </td>
-                            </tr>
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="c" items="${clientes}">
-                                <tr>
-                                    <td>${c.idUsuario}</td>
-                                    <td><strong><c:out value="${c.nombreCompleto}"/></strong></td>
-                                    <td><c:out value="${c.correo}"/></td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${not empty c.telefono}"><c:out value="${c.telefono}"/></c:when>
-                                            <c:otherwise><span class="texto-suave">-</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${c.activo}">
+                                            <span class="badge badge-ENTREGADO">Activo</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge badge-CANCELADO">Inactivo</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="${ctx}/admin/clientes?accion=editar&id=${c.idUsuario}" class="btn btn-borde btn-chico">Editar</a>
+
                                         <c:choose>
                                             <c:when test="${c.activo}">
-                                                <span class="badge badge-ENTREGADO">Activo</span>
+                                                <button onclick="confirmarDesactivacion(${c.idUsuario})" class="btn btn-peligro btn-chico">Desactivar</button>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="badge badge-CANCELADO">Inactivo</span>
+                                                <button onclick="confirmarActivacion(${c.idUsuario})" class="btn btn-verde-suave btn-chico">Activar</button>
                                             </c:otherwise>
                                         </c:choose>
-                                    </td>
-                                    <td>
-                                        <div style="display: flex; gap: 8px;">
-                                            <a href="${ctx}/admin/clientes?accion=editar&id=${c.idUsuario}" class="btn btn-borde btn-chico">Editar</a>
-
-                                            <c:choose>
-                                                <c:when test="${c.activo}">
-                                                    <button onclick="confirmarDesactivacion(${c.idUsuario})" class="btn btn-peligro btn-chico">Desactivar</button>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <button onclick="confirmarActivacion(${c.idUsuario})" class="btn btn-verde-suave btn-chico">Activar</button>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
-                </tbody>
-            </table>
-        </div>
-
-    </main>
+                                    </div>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- Modal de Confirmación de Desactivación -->

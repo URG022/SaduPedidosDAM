@@ -27,6 +27,14 @@ public interface PedidoDAO {
     boolean actualizarEstado(Long idPedido, EstadoPedido nuevoEstado, Connection con) throws SQLException;
 
     List<Pedido> obtenerActivos();
-    
+
     ReporteDTO obtenerMetricasPorRango(String fechaInicio, String fechaFin) throws SQLException;
+
+    int contarPorEstado(EstadoPedido estado);
+
+    List<Pedido> obtenerPorEstadoPaginado(EstadoPedido estado, int limite, int desplazamiento);
+
+    int contarFiltrados(EstadoPedido estado, String busqueda, String fechaInicio, String fechaFin);
+
+    List<Pedido> obtenerFiltradosPaginado(EstadoPedido estado, String busqueda, String fechaInicio, String fechaFin, int limite, int desplazamiento);
 }

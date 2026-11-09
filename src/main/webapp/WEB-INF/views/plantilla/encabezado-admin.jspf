@@ -15,12 +15,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><c:out value="${titulo}"/> · Panel Sadu</title>
-    <link rel="icon" href="${ctx}/resources/img/logo-sadu.png?v=3">
-    <link rel="stylesheet" href="${ctx}/resources/css/estilos.css?v=3">
+    <link rel="icon" href="${ctx}/resources/img/logo-sadu.png?v=4">
+    <link rel="stylesheet" href="${ctx}/resources/css/estilos.css?v=4">
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const btnMenu = document.getElementById("btn-menu-movil");
+            const barraLateral = document.getElementById("barra-lateral-admin");
+            
+            if (btnMenu && barraLateral) {
+                btnMenu.addEventListener("click", function() {
+                    barraLateral.classList.toggle("mostrar-menu");
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 <div class="layout-admin">
-    <aside class="barra-lateral">
+    
+    <!-- BARRA SUPERIOR (Solo visible en móviles) -->
+    <div class="navbar-movil-admin">
+        <div class="marca-movil">SADU <span class="marca-sub-movil">PANEL</span></div>
+        <button id="btn-menu-movil" class="btn-hamburguesa" aria-label="Abrir menú">
+            <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- BARRA LATERAL (Sidebar) -->
+    <aside id="barra-lateral-admin" class="barra-lateral">
         <div class="marca">SADU</div>
         <div class="marca-sub">PANEL INTERNO</div>
         <nav aria-label="Panel" style="display: flex; flex-direction: column; gap: 4px">
@@ -32,6 +59,7 @@
             <c:if test="${usuario.administrador}">
                 <a class="${seccion == 'productos' ? 'activo' : ''}" href="${ctx}/admin/productos">Menú</a>
                 <a class="${seccion == 'clientes' ? 'activo' : ''}" href="${ctx}/admin/clientes">Clientes</a>
+                <a class="${seccion == 'historial' ? 'activo' : ''}" href="${ctx}/admin/historial-pedidos">Historial de pedidos</a>
                 <a class="${seccion == 'reportes' ? 'activo' : ''}" href="${ctx}/admin/reportes">Reportes</a>
             </c:if>
         </nav>
@@ -40,4 +68,5 @@
             <form method="post" action="${ctx}/salir" style="margin: 0"><button class="btn btn-chico" type="submit">Cerrar sesión</button></form>
         </div>
     </aside>
+    
     <main class="contenido-admin">

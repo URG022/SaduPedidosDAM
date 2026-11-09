@@ -189,3 +189,95 @@ img { max-width: 100%; }
   .acceso .tarjeta { padding: 24px; }
   .contenido-admin { padding: 20px 16px; }
 }
+
+/* =======================================================
+   ESTILOS PARA MENÚ HAMBURGUESA Y PANEL RESPONSIVO
+   ======================================================= */
+
+/* 1. Barra superior móvil (Oculta en escritorio) */
+.navbar-movil-admin {
+    display: none; 
+    background-color: var(--sadu-azul-oscuro);
+    padding: 12px 24px;
+    color: var(--sadu-blanco);
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.marca-movil {
+    font-family: var(--fuente-titulo);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: .04em;
+}
+
+.marca-sub-movil {
+    font-size: 12px;
+    font-family: var(--fuente-texto);
+    font-weight: 800;
+    letter-spacing: .22em;
+    opacity: 0.85;
+    margin-left: 6px;
+}
+
+.btn-hamburguesa {
+    background: transparent;
+    border: none;
+    color: var(--sadu-blanco);
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.btn-hamburguesa:active {
+    transform: scale(0.9);
+}
+
+/* 2. Media Query para pantallas pequeñas (Tablets y Celulares) */
+@media (max-width: 1000px) {
+    
+    /* Cambia el layout a columna */
+    .layout-admin {
+        flex-direction: column;
+    }
+    
+    /* Muestra la barra superior */
+    .navbar-movil-admin {
+        display: flex;
+    }
+
+    /* Ocultar la barra lateral por defecto (fuera de la pantalla a la izquierda) */
+    .barra-lateral {
+        position: fixed;
+        top: 57px; /* Altura de la barra móvil */
+        left: -100%; 
+        width: 260px;
+        height: calc(100vh - 57px);
+        z-index: 999;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    }
+
+    /* Clase que inyecta JS para deslizar el menú hacia adentro */
+    .barra-lateral.mostrar-menu {
+        left: 0;
+    }
+
+    /* Ocultar la marca grande de la barra lateral porque ya está arriba */
+    .barra-lateral .marca,
+    .barra-lateral .marca-sub {
+        display: none;
+    }
+    
+    /* Ajustar el contenido para que no quede pegado a los bordes */
+    .contenido-admin {
+        padding: 20px 16px;
+    }
+}

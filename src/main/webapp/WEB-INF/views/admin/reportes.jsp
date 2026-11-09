@@ -22,19 +22,23 @@
     </div>
 
     <!-- Formulario de filtro por rango de fechas -->
-    <div class="tarjeta no-print">
-        <form action="${pageContext.request.contextPath}/admin/reportes" method="GET" style="display: flex; gap: 15px; align-items: flex-end;">
-            <div style="flex: 1;">
-                <label style="display: block; font-weight: 700; margin-bottom: 5px;">Fecha Inicio</label>
-                <input type="date" name="fechaInicio" class="campo" value="${param.fechaInicio}">
+   <div class="tarjeta no-print" style="margin-bottom: 24px; padding: 20px 24px;">
+        <form action="${pageContext.request.contextPath}/admin/reportes" method="GET" style="display: flex; gap: 24px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap;">
+            
+            <div style="flex: 1; min-width: 200px;">
+                <label for="fechaInicio" style="display: block; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem; color: #2B2D42; margin-bottom: 8px;">Fecha Inicio</label>
+                <input type="date" id="fechaInicio" name="fechaInicio" class="campo" value="${param.fechaInicio}" style="width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 10px; font-family: 'Nunito', sans-serif; color: #2B2D42;">
             </div>
-            <div style="flex: 1;">
-                <label style="display: block; font-weight: 700; margin-bottom: 5px;">Fecha Fin</label>
-                <input type="date" name="fechaFin" class="campo" value="${param.fechaFin}">
+            
+            <div style="flex: 1; min-width: 200px;">
+                <label for="fechaFin" style="display: block; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem; color: #2B2D42; margin-bottom: 8px;">Fecha Fin</label>
+                <input type="date" id="fechaFin" name="fechaFin" class="campo" value="${param.fechaFin}" style="width: 100%; border: 1px solid #D1D5DB; border-radius: 8px; padding: 10px; font-family: 'Nunito', sans-serif; color: #2B2D42;">
             </div>
+            
             <div>
-                <button type="submit" class="btn btn-azul">Filtrar</button>
+                <button type="submit" class="btn" style="background-color: #5E6CB3; color: white; padding: 10px 24px; border-radius: 20px; font-family: 'Nunito', sans-serif; font-weight: 700; border: none; cursor: pointer; transition: background-color 0.3s ease;">Filtrar</button>
             </div>
+
         </form>
     </div>
 

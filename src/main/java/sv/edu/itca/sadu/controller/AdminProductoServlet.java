@@ -66,7 +66,7 @@ public class AdminProductoServlet extends HttpServlet {
 
                 default:
                     // Configuración de la paginación
-                    int limite = 15;
+                    int limite = 10;
                     int paginaActual = 1;
 
                     // Si la URL trae el parámetro "pagina", lo leemos

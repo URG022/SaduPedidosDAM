@@ -3,14 +3,14 @@
 <c:set var="titulo" value="Administración de Menú"/>
 <c:set var="seccion" value="productos"/>
 <%@ include file="/WEB-INF/views/plantilla/encabezado-admin.jspf" %>
-<div class="layout-admin">
-
-    <!-- Contenido Principal -->
-    <main class="contenido-admin">
+<div style="display: flex; flex-direction: column; gap: 20px;">
 
         <!-- Título y Botón Superior -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <h1>Gestión de Menú</h1>
+            <div>
+        <h1 style="font-size: 26px; margin: 0;">Menú</h1>
+        <p class="texto-suave" style="margin: 4px 0 0">Gestión de menú de platillos.</p>
+    </div>
             <div style="display: flex; gap: 10px;">
                 <a href="${ctx}/admin/categorias" class="btn btn-borde">Categorías</a>
                 <a href="${ctx}/admin/productos?accion=nuevo" class="btn btn-sol">Nuevo Platillo</a>
@@ -113,8 +113,6 @@
 
             </div>
         </c:if>
-
-    </main>
 </div>
 
 <!-- Modal de Confirmación de Eliminación -->

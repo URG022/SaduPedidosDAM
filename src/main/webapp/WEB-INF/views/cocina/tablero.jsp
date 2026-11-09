@@ -167,9 +167,9 @@
                                             Enviar en camino
                                         </button>
                                     </c:when>
-                                    <c:when test="${not usuario.cocina}">
-                                        <!-- Solo cocina entrega y cobra; el admin solo observa -->
-                                        <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro en cocina</div>
+                                    <c:when test="${not usuario.administrador}">
+                                        <!-- Solo admin entrega y cobra; la cocina solo observa -->
+                                        <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro</div>
                                     </c:when>
                                     <c:otherwise>
                                         <input type="hidden" name="estado" value="ENTREGADO">
@@ -221,9 +221,9 @@
                             </div>
 
                             <c:choose>
-                                <c:when test="${not usuario.cocina}">
-                                    <!-- Solo cocina entrega y cobra; el admin solo observa -->
-                                    <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro en cocina</div>
+                                <c:when test="${not usuario.administrador}">
+                                    <!-- Solo admin entrega y cobra; la cocina solo observa -->
+                                    <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro en admin</div>
                                 </c:when>
                                 <c:otherwise>
                                     <form action="${ctx}/cocina" method="POST">

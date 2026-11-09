@@ -238,7 +238,7 @@ public class PedidoService {
         if (actual.getEstado() == nuevoEstado) {
             throw new IllegalArgumentException("El pedido ya se encuentra en ese estado.");
         }
-        
+
         if (!transicionValida(actual.getEstado(), nuevoEstado)) {
             throw new IllegalArgumentException("No se puede pasar de " + actual.getEstado()
                     + " a " + nuevoEstado + ".");
@@ -344,15 +344,100 @@ public class PedidoService {
             return new ReporteDTO();
         }
     }
-    
-        /** Orden permitido: RECIBIDO > EN_PREPARACION > LISTO > (EN_CAMINO) > ENTREGADO. */
+
+    /**
+     * Orden permitido: RECIBIDO > EN_PREPARACION > LISTO > (EN_CAMINO) >
+     * ENTREGADO.
+     */
     private boolean transicionValida(EstadoPedido de, EstadoPedido a) {
         switch (de) {
-            case RECIBIDO:       return a == EstadoPedido.EN_PREPARACION || a == EstadoPedido.CANCELADO;
-            case EN_PREPARACION: return a == EstadoPedido.LISTO;
-            case LISTO:          return a == EstadoPedido.EN_CAMINO || a == EstadoPedido.ENTREGADO;
-            case EN_CAMINO:      return a == EstadoPedido.ENTREGADO;
-            default:             return false;
+            case RECIBIDO:
+                return a == EstadoPedido.EN_PREPARACION || a == EstadoPedido.CANCELADO;
+            case EN_PREPARACION:
+                return a == EstadoPedido.LISTO;
+            case LISTO:
+                return a == EstadoPedido.EN_CAMINO || a == EstadoPedido.ENTREGADO;
+            case EN_CAMINO:
+                return a == EstadoPedido.ENTREGADO;
+            default:
+                return false;
         }
+    }
+
+    // =====================================================================
+    //  Consultas Históricas y Reportes
+    // =====================================================================
+    /**
+     * Obtiene una lista detallada de todos los pedidos marcados como ENTREGADO.
+     * Incluye los productos comprados (detalles) y el seguimiento de cada uno.
+     */
+    public List<Pedido> listarPedidosEntregadosCompletos() {
+        // Obtener los pedidos base cuyo estado sea ENTREGADO
+        List<Pedido> entregados = pedidoDAO.obtenerPorEstado(EstadoPedido.ENTREGADO);
+
+        if (entregados == null || entregados.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        for (Pedido pedido : entregados) {
+            // Adjuntar los platillos comprados
+            pedido.setDetalles(detalleDAO.listarPorPedido(pedido.getIdPedido()));
+
+            // Adjuntar la línea de tiempo
+            pedido.setSeguimientos(seguimientoDAO.listarPorPedido(pedido.getIdPedido()));
+        }
+
+        return entregados;
+    }
+
+    public Pedido obtenerDetalleParaAdmin(Long idPedido) {
+        validarIdPedido(idPedido);
+        Pedido pedido = pedidoDAO.obtenerPorId(idPedido);
+        if (pedido == null) {
+            return null;
+        }
+        pedido.setDetalles(detalleDAO.listarPorPedido(idPedido));
+        pedido.setSeguimientos(seguimientoDAO.listarPorPedido(idPedido));
+        return pedido;
+    }
+
+    public int contarPedidosEntregados() {
+        return pedidoDAO.contarPorEstado(EstadoPedido.ENTREGADO);
+    }
+
+    public List<Pedido> listarPedidosEntregadosPaginados(int pagina, int registrosPorPagina) {
+        int desplazamiento = (pagina - 1) * registrosPorPagina;
+        List<Pedido> entregados = ((PedidoDAOImpl) pedidoDAO).obtenerPorEstadoPaginado(EstadoPedido.ENTREGADO, registrosPorPagina, desplazamiento);
+
+        if (entregados == null || entregados.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        for (Pedido pedido : entregados) {
+            pedido.setDetalles(detalleDAO.listarPorPedido(pedido.getIdPedido()));
+            pedido.setSeguimientos(seguimientoDAO.listarPorPedido(pedido.getIdPedido()));
+        }
+
+        return entregados;
+    }
+
+    public int contarPedidosEntregadosFiltrados(String busqueda, String fechaInicio, String fechaFin) {
+        return ((PedidoDAOImpl) pedidoDAO).contarFiltrados(EstadoPedido.ENTREGADO, busqueda, fechaInicio, fechaFin);
+    }
+
+    public List<Pedido> listarPedidosEntregadosFiltradosPaginados(String busqueda, String fechaInicio, String fechaFin, int pagina, int registrosPorPagina) {
+        int desplazamiento = (pagina - 1) * registrosPorPagina;
+        List<Pedido> entregados = ((PedidoDAOImpl) pedidoDAO).obtenerFiltradosPaginado(EstadoPedido.ENTREGADO, busqueda, fechaInicio, fechaFin, registrosPorPagina, desplazamiento);
+
+        if (entregados == null || entregados.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        for (Pedido pedido : entregados) {
+            pedido.setDetalles(detalleDAO.listarPorPedido(pedido.getIdPedido()));
+            pedido.setSeguimientos(seguimientoDAO.listarPorPedido(pedido.getIdPedido()));
+        }
+
+        return entregados;
     }
 }

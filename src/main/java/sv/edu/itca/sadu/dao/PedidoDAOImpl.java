@@ -84,14 +84,20 @@ public class PedidoDAOImpl implements PedidoDAO {
     @Override
     public Pedido obtenerPorId(Long idPedido) {
         Pedido p = null;
-        String sql = "SELECT id_pedido, id_cliente, tipo_entrega, estado, direccion_entrega, notas, total, "
-                + "fecha_creacion, fecha_actualizacion FROM pedidos WHERE id_pedido = ?";
+        String sql = "SELECT p.id_pedido, p.id_cliente, p.tipo_entrega, p.estado, p.direccion_entrega, p.notas, p.total, "
+                + "p.fecha_creacion, p.fecha_actualizacion, u.nombre_completo AS nombre_cliente "
+                + "FROM pedidos p "
+                + "JOIN clientes c ON p.id_cliente = c.id_cliente "
+                + "JOIN usuarios u ON c.id_usuario = u.id_usuario "
+                + "WHERE p.id_pedido = ?";
 
         try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setLong(1, idPedido);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     p = mapear(rs);
+                    // Asignamos el nombre del cliente obtenido del JOIN
+                    p.setNombreCliente(rs.getString("nombre_cliente"));
                 }
             }
         } catch (Exception e) {
@@ -103,16 +109,21 @@ public class PedidoDAOImpl implements PedidoDAO {
     @Override
     public List<Pedido> obtenerPorEstado(EstadoPedido estado) {
         List<Pedido> lista = new ArrayList<>();
-        // Más antiguos primero: es el orden natural de un tablero de cocina
-        String sql = "SELECT id_pedido, id_cliente, tipo_entrega, estado, direccion_entrega, notas, total, "
-                + "fecha_creacion, fecha_actualizacion FROM pedidos WHERE estado = ? "
-                + "ORDER BY fecha_creacion ASC, id_pedido ASC";
+        String sql = "SELECT p.id_pedido, p.id_cliente, p.tipo_entrega, p.estado, p.direccion_entrega, p.notas, p.total, "
+                + "p.fecha_creacion, p.fecha_actualizacion, u.nombre_completo AS nombre_cliente "
+                + "FROM pedidos p "
+                + "JOIN clientes c ON p.id_cliente = c.id_cliente "
+                + "JOIN usuarios u ON c.id_usuario = u.id_usuario "
+                + "WHERE p.estado = ? "
+                + "ORDER BY p.fecha_creacion ASC, p.id_pedido ASC";
 
         try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, estado.name());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    lista.add(mapear(rs));
+                    Pedido p = mapear(rs);
+                    p.setNombreCliente(rs.getString("nombre_cliente"));
+                    lista.add(p);
                 }
             }
         } catch (Exception e) {
@@ -338,5 +349,151 @@ public class PedidoDAOImpl implements PedidoDAO {
             }
         }
         return ventas;
+    }
+
+    @Override
+    public int contarPorEstado(EstadoPedido estado) {
+        int total = 0;
+        String sql = "SELECT COUNT(*) FROM pedidos WHERE estado = ?";
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, estado.name());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
+    @Override
+    public List<Pedido> obtenerPorEstadoPaginado(EstadoPedido estado, int limite, int desplazamiento) {
+        List<Pedido> lista = new ArrayList<>();
+        String sql = "SELECT p.id_pedido, p.id_cliente, p.tipo_entrega, p.estado, p.direccion_entrega, p.notas, p.total, "
+                + "p.fecha_creacion, p.fecha_actualizacion, u.nombre_completo AS nombre_cliente "
+                + "FROM pedidos p "
+                + "JOIN clientes c ON p.id_cliente = c.id_cliente "
+                + "JOIN usuarios u ON c.id_usuario = u.id_usuario "
+                + "WHERE p.estado = ? "
+                + "ORDER BY p.fecha_creacion DESC, p.id_pedido DESC "
+                + "LIMIT ? OFFSET ?";
+
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, estado.name());
+            ps.setInt(2, limite);
+            ps.setInt(3, desplazamiento);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Pedido p = mapear(rs);
+                    p.setNombreCliente(rs.getString("nombre_cliente"));
+                    lista.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    @Override
+    public int contarFiltrados(EstadoPedido estado, String busqueda, String fechaInicio, String fechaFin) {
+        int total = 0;
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM pedidos p "
+                + "JOIN clientes c ON p.id_cliente = c.id_cliente "
+                + "JOIN usuarios u ON c.id_usuario = u.id_usuario "
+                + "WHERE p.estado = ?");
+
+        List<Object> params = new ArrayList<>();
+        params.add(estado.name());
+
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            sql.append(" AND u.nombre_completo LIKE ?");
+            params.add("%" + busqueda.trim() + "%");
+        }
+
+        boolean tieneInicio = (fechaInicio != null && !fechaInicio.trim().isEmpty());
+        boolean tieneFin = (fechaFin != null && !fechaFin.trim().isEmpty());
+
+        if (tieneInicio && tieneFin) {
+            sql.append(" AND DATE(p.fecha_creacion) BETWEEN ? AND ?");
+            params.add(fechaInicio.trim());
+            params.add(fechaFin.trim());
+        } else if (tieneInicio) {
+            sql.append(" AND DATE(p.fecha_creacion) = ?");
+            params.add(fechaInicio.trim());
+        } else if (tieneFin) {
+            sql.append(" AND DATE(p.fecha_creacion) = ?");
+            params.add(fechaFin.trim());
+        }
+
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
+    @Override
+    public List<Pedido> obtenerFiltradosPaginado(EstadoPedido estado, String busqueda, String fechaInicio, String fechaFin, int limite, int desplazamiento) {
+        List<Pedido> lista = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT p.id_pedido, p.id_cliente, p.tipo_entrega, p.estado, p.direccion_entrega, p.notas, p.total, "
+                + "p.fecha_creacion, p.fecha_actualizacion, u.nombre_completo AS nombre_cliente "
+                + "FROM pedidos p "
+                + "JOIN clientes c ON p.id_cliente = c.id_cliente "
+                + "JOIN usuarios u ON c.id_usuario = u.id_usuario "
+                + "WHERE p.estado = ?");
+
+        List<Object> params = new ArrayList<>();
+        params.add(estado.name());
+
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            sql.append(" AND u.nombre_completo LIKE ?");
+            params.add("%" + busqueda.trim() + "%");
+        }
+
+        boolean tieneInicio = (fechaInicio != null && !fechaInicio.trim().isEmpty());
+        boolean tieneFin = (fechaFin != null && !fechaFin.trim().isEmpty());
+
+        if (tieneInicio && tieneFin) {
+            sql.append(" AND DATE(p.fecha_creacion) BETWEEN ? AND ?");
+            params.add(fechaInicio.trim());
+            params.add(fechaFin.trim());
+        } else if (tieneInicio) {
+            sql.append(" AND DATE(p.fecha_creacion) = ?");
+            params.add(fechaInicio.trim());
+        } else if (tieneFin) {
+            sql.append(" AND DATE(p.fecha_creacion) = ?");
+            params.add(fechaFin.trim());
+        }
+
+        sql.append(" ORDER BY p.fecha_creacion DESC, p.id_pedido DESC LIMIT ? OFFSET ?");
+        params.add(limite);
+        params.add(desplazamiento);
+
+        try (Connection con = ConexionBD.obtenerConexion(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Pedido p = mapear(rs);
+                    p.setNombreCliente(rs.getString("nombre_cliente"));
+                    lista.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }
