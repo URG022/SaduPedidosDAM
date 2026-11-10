@@ -131,7 +131,7 @@ public class CocinaServlet extends HttpServlet {
             String metodoPago = request.getParameter("metodoPago");
 
             if (nuevoEstado == EstadoPedido.ENTREGADO && !usuario.isAdministrador()) {
-                request.setAttribute("error", "Solo el personal de cocina puede entregar y cobrar un pedido.");
+                request.setAttribute("error", "Solo el administrador puede entregar y cobrar un pedido.");
                 cargarTablero(request, response, null);
                 return;
             }

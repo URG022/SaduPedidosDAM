@@ -169,7 +169,7 @@
                                     </c:when>
                                     <c:when test="${not usuario.administrador}">
                                         <!-- Solo admin entrega y cobra; la cocina solo observa -->
-                                        <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro</div>
+                                        <div style="background: #FEF3C7; color: #92400E; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center;">Pendiente de cobro (Administración)</div>
                                     </c:when>
                                     <c:otherwise>
                                         <input type="hidden" name="estado" value="ENTREGADO">
